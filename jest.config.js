@@ -7,4 +7,5 @@ module.exports = {
   transform: {
     "^.+\\.(js|ts)$": "ts-jest",
   },
+  watchPathIgnorePatterns: ["__mono_repo_fixture__"],
 };

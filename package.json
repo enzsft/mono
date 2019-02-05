@@ -5,10 +5,8 @@
   "keywords": [
     "mono",
     "monorepo",
-    "package",
     "packages",
     "yarn",
-    "workspace",
     "workspaces"
   ],
   "license": "MIT",
@@ -23,8 +21,13 @@
     "npm-publish": "./scripts/publish.sh",
     "test": "jest"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@enzsft/cli": "^1.0.2",
+    "fs-extra": "^7.0.1",
+    "glob-promise": "^3.4.0"
+  },
   "devDependencies": {
+    "@types/fs-extra": "^5.0.4",
     "@types/jest": "^23.3.12",
     "@types/node": "^10.12.18",
     "coveralls": "^3.0.2",
