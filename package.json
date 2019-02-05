@@ -1,0 +1,43 @@
+{
+  "name": "@enzsft/mono",
+  "version": "1.0.0-alpha.1",
+  "description": "Manage JavaScript mono repos with ease. 😲",
+  "keywords": [
+    "mono",
+    "monorepo",
+    "package",
+    "packages",
+    "yarn",
+    "workspace",
+    "workspaces"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/enzsft/mono"
+  },
+  "author": "Enzyme Software",
+  "scripts": {
+    "build": "./scripts/build.sh",
+    "lint": "tslint 'src/**/*.ts' --project ./tsconfig.json",
+    "npm-publish": "./scripts/publish.sh",
+    "test": "jest"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "^23.3.12",
+    "@types/node": "^10.12.18",
+    "coveralls": "^3.0.2",
+    "husky": "^1.3.1",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.5",
+    "tslint": "^5.12.1",
+    "tslint-config-prettier": "^1.17.0",
+    "typescript": "^3.2.4"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "./scripts/quality-check.sh"
+    }
+  }
+}

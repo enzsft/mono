@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "lib": ["es2017"],
+    "outDir": ".build",
+    "strict": true
+  },
+  "exclude": [".build", ".coverage", "node_modules", "**/*.test.ts"],
+  "include": ["index.ts", "test-utils.ts", "src/**/*.ts"]
+}
