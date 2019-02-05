@@ -35,4 +35,4 @@ yarn global add @enzsft/mono
 
 ## Alternatives 😽
 
-[Lerna](https://www.npmjs.com/package/lerna) is a great alternative with fleshed out features.
+[Lerna](https://www.npmjs.com/package/lerna) is a great alternative with fleshed out features. Unlike Lerna this tool does not focus on publishing packages.
