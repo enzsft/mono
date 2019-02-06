@@ -11,3 +11,6 @@ tsc
 # Copy files
 cp README.md .build/README.md
 cp package.json .build/package.json
+
+# Make entry executable
+chmod u+x .build/index.js

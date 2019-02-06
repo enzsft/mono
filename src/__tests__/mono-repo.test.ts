@@ -12,14 +12,14 @@ const monoRepo = {
 };
 const packages = [
   {
-    __dir: "packages/one",
+    __dir: resolve(monoRepoDir, "packages/one"),
     license: "MIT",
     name: "one",
     scripts: { test: "touch test.txt" },
     version: "1.0.0",
   },
   {
-    __dir: "packages/two",
+    __dir: resolve(monoRepoDir, "packages/two"),
     license: "MIT",
     name: "two",
     scripts: { test: "touch test.txt" },

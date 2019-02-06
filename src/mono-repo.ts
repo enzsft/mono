@@ -29,11 +29,10 @@ export const createMonoRepo = async (
   await Promise.all(
     packages.map(async x => {
       // Create package directory
-      const packageDir = resolve(monoRepoDir, x.__dir);
-      await ensureDir(packageDir);
+      await ensureDir(x.__dir);
 
       // Create package.json
-      await writeJson(resolve(packageDir, "package.json"), x, { spaces: 2 });
+      await writeJson(resolve(x.__dir, "package.json"), x, { spaces: 2 });
     }),
   );
 };

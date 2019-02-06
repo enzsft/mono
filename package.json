@@ -15,6 +15,7 @@
     "url": "https://github.com/enzsft/mono"
   },
   "author": "Enzyme Software",
+  "bin": "./index.js",
   "scripts": {
     "build": "./scripts/build.sh",
     "lint": "tslint 'src/**/*.ts' --project ./tsconfig.json",
