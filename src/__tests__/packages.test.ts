@@ -38,11 +38,6 @@ describe("getPackages", () => {
   it("should get all packages in the mono repo", async () => {
     const foundPackages = await getPackages(monoRepoDir);
 
-    expect(foundPackages).toEqual(
-      packages.map(x => ({
-        ...x,
-        __dir: resolve(monoRepoDir, "packages", x.name),
-      })),
-    );
+    expect(foundPackages).toEqual(packages);
   });
 });
