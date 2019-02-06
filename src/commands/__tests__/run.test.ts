@@ -42,6 +42,11 @@ describe("run", () => {
       version: "1.0.0",
     },
   ];
+  const cli = createCli({
+    commands: [createRunCommand(packages)],
+    description: "",
+    name: "",
+  });
 
   beforeEach(async () => {
     await createMonoRepo(monoRepoDir, monoRepo, packages);
@@ -52,12 +57,6 @@ describe("run", () => {
   });
 
   it("should run the npm scripts in every package", async () => {
-    const cli = createCli({
-      commands: [createRunCommand(packages)],
-      description: "",
-      name: "",
-    });
-
     await cli.start(buildArgv("run touch1 touch2"));
 
     const [a, b] = packages;
@@ -72,12 +71,6 @@ describe("run", () => {
   });
 
   it("should reject/throw if a script fails and not execute following scripts", async () => {
-    const cli = createCli({
-      commands: [createRunCommand(packages)],
-      description: "",
-      name: "",
-    });
-
     try {
       expect.assertions(3);
       await cli.start(buildArgv("run touch1 exit touch2"));
