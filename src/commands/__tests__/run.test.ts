@@ -5,7 +5,6 @@ import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../../mono-repo";
 import { IPackage } from "../../types";
 import { createRunCommand } from "../run";
-import parseArgs from "minimist";
 
 describe("run", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__run__");
