@@ -42,3 +42,38 @@ export const getPackages = async (monoRepoDir: string): Promise<IPackage[]> => {
     }),
   );
 };
+
+/**
+ * Filter packages based on a filter string.
+ * @param packages
+ * @param filter Comma seperated package names
+ */
+export const filterPackages = (
+  packages: IPackage[],
+  filter: string,
+): IPackage[] => {
+  // Package names/wildcards can be comma seperated
+  const filterParts = filter.split(",");
+
+  // It is a package name unless it contains a '*', then it is a wildcard
+  const packageNames = filterParts.filter(f => !f.includes("*"));
+  const packageWildcards = filterParts.filter(f => f.includes("*"));
+
+  // Include all packages if this wildcard exists
+  if (packageWildcards.includes("*")) {
+    return packages;
+  }
+
+  // Ensure final collection of packages has no duplicate packages by using Set()
+  return Array.from(
+    new Set([
+      ...packages.filter(p => packageNames.includes(p.name)),
+      // Wildcard only supports trailing '*' so strip it and use startsWith()
+      ...packages.filter(p =>
+        packageWildcards.find(w =>
+          p.name.startsWith(w.substring(0, w.length - 1)),
+        ),
+      ),
+    ]),
+  );
+};

@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../mono-repo";
-import { getPackages } from "../packages";
+import { filterPackages, getPackages } from "../packages";
 
 describe("getPackages", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__packages__");
@@ -39,5 +39,50 @@ describe("getPackages", () => {
     const foundPackages = await getPackages(monoRepoDir);
 
     expect(foundPackages).toEqual(packages);
+  });
+});
+
+describe("filterPackages", () => {
+  const packages = [
+    {
+      __dir: "packages/one",
+      license: "MIT",
+      name: "one",
+      scripts: { test: "touch test.txt" },
+      version: "1.0.0",
+    },
+    {
+      __dir: "packages/two",
+      license: "MIT",
+      name: "two",
+      scripts: { test: "touch test.txt" },
+      version: "1.0.0",
+    },
+    {
+      __dir: "packages/three",
+      license: "MIT",
+      name: "three",
+      scripts: { test: "touch test.txt" },
+      version: "1.0.0",
+    },
+  ];
+
+  it("should return all matching packages", () => {
+    const [one, two, three] = packages;
+
+    // Name only
+    expect(filterPackages(packages, "one")).toEqual([one]);
+    expect(filterPackages(packages, "one,two")).toEqual([one, two]);
+    expect(filterPackages(packages, "two,three")).toEqual([two, three]);
+
+    // Wildcard only
+    expect(filterPackages(packages, "*")).toEqual([one, two, three]);
+    expect(filterPackages(packages, "t*")).toEqual([two, three]);
+
+    // Ensure not all strings are wildcarded
+    expect(filterPackages(packages, "o")).toEqual([]);
+
+    // Name/wildcard mix
+    expect(filterPackages(packages, "one,t*")).toEqual([one, two, three]);
   });
 });

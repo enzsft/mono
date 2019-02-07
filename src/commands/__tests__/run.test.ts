@@ -30,7 +30,7 @@ describe("run", () => {
       license: "MIT",
       name: "b-package",
       scripts: {
-        exit: "touch test.txt",
+        exit: "touch test.txt", // doesn't exit, creates a file so test can check it doesn't exist
         touch: "touch test.txt",
       },
       version: "1.0.0",
@@ -40,6 +40,25 @@ describe("run", () => {
       __dir: resolve(monoRepoDir, "packages/c-package"),
       license: "MIT",
       name: "c-package",
+      version: "1.0.0",
+    },
+    {
+      __dir: resolve(monoRepoDir, "packages/d-package"),
+      license: "MIT",
+      name: "d-package",
+      scripts: {
+        touch: "touch test.txt",
+      },
+      version: "1.0.0",
+    },
+    // Another package beginning with 'd' for wilcard
+    {
+      __dir: resolve(monoRepoDir, "packages/d-package-other"),
+      license: "MIT",
+      name: "d-package-other",
+      scripts: {
+        touch: "touch test.txt",
+      },
       version: "1.0.0",
     },
   ];
@@ -90,5 +109,43 @@ describe("run", () => {
     expect(existsSync(resolve(b.__dir, "test.txt"))).toBe(true);
     expect(existsSync(resolve(b.__dir, "1.txt"))).toBe(true);
     expect(existsSync(resolve(b.__dir, "2.txt"))).toBe(true);
+  });
+
+  it("should only run the npm script in the specified packages (option name)", async () => {
+    // include c-package to ensure no scripts is handled
+    await cli.start(
+      buildArgv("run touch --include a-package,b-package,c-package"),
+    );
+
+    const [a, b, , d] = packages;
+
+    // Check matching packages executed
+    expect(existsSync(resolve(a.__dir, "test.txt"))).toBe(true);
+    expect(existsSync(resolve(b.__dir, "test.txt"))).toBe(true);
+
+    // Check non matching packages did not execute
+    expect(existsSync(resolve(d.__dir, "test.txt"))).toBe(false);
+  });
+
+  it("should only run the npm script in the specified packages (option alt name)", async () => {
+    await cli.start(buildArgv("run touch -i a-package,b-package"));
+
+    const [a, b, , d] = packages;
+
+    // Check matching packages executed
+    expect(existsSync(resolve(a.__dir, "test.txt"))).toBe(true);
+    expect(existsSync(resolve(b.__dir, "test.txt"))).toBe(true);
+
+    // Check non matching packages did not execute
+    expect(existsSync(resolve(d.__dir, "test.txt"))).toBe(false);
+  });
+
+  it("should only run the npm script in the specified packages (wildcard)", async () => {
+    await cli.start(buildArgv("run touch -i d-*"));
+
+    const [, , , d, dOther] = packages;
+
+    expect(existsSync(resolve(d.__dir, "test.txt"))).toBe(true);
+    expect(existsSync(resolve(dOther.__dir, "test.txt"))).toBe(true);
   });
 });

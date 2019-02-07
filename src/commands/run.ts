@@ -1,20 +1,29 @@
 import { ICommand } from "@enzsft/cli";
 import { exec } from "child_process";
-import { IPackage } from "../types";
+import { includeOption } from "../options/include";
+import { filterPackages } from "../packages";
+import { IPackage, IRunCommandOptions } from "../types";
 
 /**
- * Create the run command
+ * Create the run command.
+ * This command is used to run NPM in packages in the mono repo.
  * @param packages
  */
-export const createRunCommand = (packages: IPackage[]): ICommand<{}> => ({
+export const createRunCommand = (
+  packages: IPackage[],
+): ICommand<IRunCommandOptions> => ({
   description: "Run NPM scripts",
-  handler: async (values: string[], options: {}): Promise<void> => {
+  handler: async (
+    values: string[],
+    options: IRunCommandOptions,
+  ): Promise<void> => {
     // The script to execute will always be the first value
     // All values after the script are arguments to forward onto the executing script
     const [script, ...forwardedArgs] = values;
 
     // Build executor functions
-    const executors = packages
+    const executors = filterPackages(packages, options.include)
+      .filter(p => p)
       // Filter packages that contain the script
       .filter(p => p.scripts && Object.keys(p.scripts).includes(script))
       // Return seperate executors over immediate map() so we can execute them in sync
@@ -40,5 +49,5 @@ export const createRunCommand = (packages: IPackage[]): ICommand<{}> => ({
     }
   },
   name: "run",
-  options: [],
+  options: [includeOption],
 });

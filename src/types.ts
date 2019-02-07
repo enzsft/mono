@@ -45,3 +45,13 @@ export interface IPackage {
    */
   __dir: string;
 }
+
+/**
+ * Run command options
+ */
+export interface IRunCommandOptions {
+  /**
+   * Filter string for package names
+   */
+  include: string;
+}
