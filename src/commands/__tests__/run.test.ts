@@ -5,6 +5,7 @@ import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../../mono-repo";
 import { IPackage } from "../../types";
 import { createRunCommand } from "../run";
+import parseArgs from "minimist";
 
 describe("run", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__run__");
@@ -21,9 +22,7 @@ describe("run", () => {
       name: "a-package",
       scripts: {
         exit: "exit 1",
-        touch1: "touch 1.txt",
-        touch2: "touch 2.txt",
-        touch3: "touch 3.txt",
+        touch: "touch test.txt",
       },
       version: "1.0.0",
     },
@@ -31,7 +30,10 @@ describe("run", () => {
       __dir: resolve(monoRepoDir, "packages/b-package"),
       license: "MIT",
       name: "b-package",
-      scripts: { touch1: "touch 1.txt" },
+      scripts: {
+        exit: "touch test.txt",
+        touch: "touch test.txt",
+      },
       version: "1.0.0",
     },
     // No scripts in this workspace to ensure than packages without scripts are handled
@@ -56,33 +58,38 @@ describe("run", () => {
     await deleteMonoRepo(monoRepoDir);
   });
 
-  it("should run the npm scripts in every package", async () => {
-    await cli.start(buildArgv("run touch1 touch2"));
+  it("should run the npm script in every package", async () => {
+    await cli.start(buildArgv("run touch"));
 
     const [a, b] = packages;
 
-    // Check all expected scripts were executed
-    expect(existsSync(resolve(a.__dir, "1.txt"))).toBe(true);
-    expect(existsSync(resolve(a.__dir, "2.txt"))).toBe(true);
-    expect(existsSync(resolve(b.__dir, "1.txt"))).toBe(true);
-
-    // Check unexpected scripts were not executed
-    expect(existsSync(resolve(a.__dir, "3.txt"))).toBe(false);
+    expect(existsSync(resolve(a.__dir, "test.txt"))).toBe(true);
+    expect(existsSync(resolve(b.__dir, "test.txt"))).toBe(true);
   });
 
-  it("should reject/throw if a script fails and not execute following scripts", async () => {
+  it("should reject/throw if the npm script fails", async () => {
     try {
-      expect.assertions(3);
-      await cli.start(buildArgv("run touch1 exit touch2"));
-    } catch (err) {
-      const [a, b] = packages;
+      await cli.start(buildArgv("run exit"));
+    } catch (error) {
+      // exit code should be provided
+      expect(error).toEqual({ code: 1 });
 
-      // Check all packages ran the first script
-      expect(existsSync(resolve(a.__dir, "1.txt"))).toBe(true);
-
-      // Check the final script was not run
-      expect(existsSync(resolve(a.__dir, "2.txt"))).toBe(false);
-      expect(existsSync(resolve(b.__dir, "1.txt"))).toBe(false);
+      // should not execute scripts after the failing script
+      const [, b] = packages;
+      expect(existsSync(resolve(b.__dir, "test.txt"))).toBe(false);
     }
+  });
+
+  it("should execute the npm script with the given arguments", async () => {
+    await cli.start(buildArgv("run touch -- 1.txt 2.txt"));
+
+    const [a, b] = packages;
+
+    expect(existsSync(resolve(a.__dir, "test.txt"))).toBe(true);
+    expect(existsSync(resolve(a.__dir, "1.txt"))).toBe(true);
+    expect(existsSync(resolve(a.__dir, "2.txt"))).toBe(true);
+    expect(existsSync(resolve(b.__dir, "test.txt"))).toBe(true);
+    expect(existsSync(resolve(b.__dir, "1.txt"))).toBe(true);
+    expect(existsSync(resolve(b.__dir, "2.txt"))).toBe(true);
   });
 });

@@ -8,22 +8,35 @@ import { IPackage } from "../types";
  */
 export const createRunCommand = (packages: IPackage[]): ICommand<{}> => ({
   description: "Run NPM scripts",
-  handler: async (scriptsToExecute: string[], options: {}): Promise<void> => {
-    for (const pkg of packages) {
-      if (pkg.scripts) {
-        for (const script of scriptsToExecute) {
-          // If this package contains this script then execute it
-          if (Object.keys(pkg.scripts).includes(script)) {
-            const runner = exec(`yarn run ${script}`, { cwd: pkg.__dir });
+  handler: async (values: string[], options: {}): Promise<void> => {
+    // The script to execute will always be the first value
+    // All values after the script are arguments to forward onto the executing script
+    const [script, ...forwardedArgs] = values;
 
-            await new Promise(
-              (resolve, reject): void => {
-                runner.on("exit", code => (code === 0 ? resolve() : reject()));
-              },
+    // Build executor functions
+    const executors = packages
+      // Filter packages that contain the script
+      .filter(p => p.scripts && Object.keys(p.scripts).includes(script))
+      // Return seperate executors over immediate map() so we can execute them in sync
+      .map(p => async (): Promise<void> => {
+        // Run the script via yarn from the packages directory
+        const runner = exec(`yarn run ${script} ${forwardedArgs.join(" ")}`, {
+          cwd: p.__dir,
+        });
+
+        return new Promise(
+          (resolve, reject): void => {
+            // Resolve on a successful 0 exit code, else reject with the code
+            runner.on("exit", code =>
+              code === 0 ? resolve() : reject({ code }),
             );
-          }
-        }
-      }
+          },
+        );
+      });
+
+    // Execute all the executors one at a time
+    for (const executor of executors) {
+      await executor();
     }
   },
   name: "run",
