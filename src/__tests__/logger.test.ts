@@ -1,5 +1,5 @@
 import mockConsole, { RestoreConsole } from "jest-mock-console";
-import { createConsoleLogger, defaultPrefix } from "../logger";
+import { createConsoleLogger, defaultPrefix, levelPrefixes } from "../logger";
 
 describe("createConsoleLogger", () => {
   let restoreConsole: RestoreConsole;
@@ -18,7 +18,7 @@ describe("createConsoleLogger", () => {
     restoreConsole();
   });
 
-  it("should log to the console with the default prefix", () => {
+  it("should log to the console with the default prefix and log level", () => {
     const logger = createConsoleLogger();
     const log = "test";
 
@@ -30,16 +30,21 @@ describe("createConsoleLogger", () => {
     expect(globalConsole.warn).toHaveBeenCalledTimes(1);
     expect(globalConsole.error).toHaveBeenCalledTimes(1);
 
-    expect(globalConsole.log.mock.calls[0][0]).toBe(`${defaultPrefix}${log}`);
-    expect(globalConsole.warn.mock.calls[0][0]).toBe(`${defaultPrefix}${log}`);
-    expect(globalConsole.error.mock.calls[0][0]).toBe(`${defaultPrefix}${log}`);
+    expect(globalConsole.log.mock.calls[0][0]).toBe(
+      `${defaultPrefix} ${levelPrefixes.log}: ${log}`,
+    );
+    expect(globalConsole.warn.mock.calls[0][0]).toBe(
+      `${defaultPrefix} ${levelPrefixes.warn}: ${log}`,
+    );
+    expect(globalConsole.error.mock.calls[0][0]).toBe(
+      `${defaultPrefix} ${levelPrefixes.error}: ${log}`,
+    );
   });
 
-  it("should log to the console with the given prefix", () => {
+  it("should log to the console with the given prefix and log level", () => {
     const prefix = "prefix: ";
     const logger = createConsoleLogger({ prefix });
     const message = "test";
-    const expectedLog = `${prefix}${message}`;
 
     logger.log(message);
     logger.warn(message);
@@ -49,20 +54,25 @@ describe("createConsoleLogger", () => {
     expect(globalConsole.warn).toHaveBeenCalledTimes(1);
     expect(globalConsole.error).toHaveBeenCalledTimes(1);
 
-    expect(globalConsole.log.mock.calls[0][0]).toBe(expectedLog);
-    expect(globalConsole.warn.mock.calls[0][0]).toBe(expectedLog);
-    expect(globalConsole.error.mock.calls[0][0]).toBe(expectedLog);
+    expect(globalConsole.log.mock.calls[0][0]).toBe(
+      `${prefix} ${levelPrefixes.log}: ${message}`,
+    );
+    expect(globalConsole.warn.mock.calls[0][0]).toBe(
+      `${prefix} ${levelPrefixes.warn}: ${message}`,
+    );
+    expect(globalConsole.error.mock.calls[0][0]).toBe(
+      `${prefix} ${levelPrefixes.error}: ${message}`,
+    );
   });
 
   it("should format multi line logs", () => {
     const logger = createConsoleLogger();
-    // log with multiple lines, leading whitespace and traiing whitespace
+    // log with multiple lines, leading whitespace,
+    // traiing whitespace and blank last line
     const message = `line1
     line2
-  line3  `;
-    const expectedLog = `${defaultPrefix}line1
-${defaultPrefix}line2
-${defaultPrefix}line3`;
+  line3  
+`;
 
     logger.log(message);
     logger.warn(message);
@@ -72,8 +82,20 @@ ${defaultPrefix}line3`;
     expect(globalConsole.warn).toHaveBeenCalledTimes(1);
     expect(globalConsole.error).toHaveBeenCalledTimes(1);
 
-    expect(globalConsole.log.mock.calls[0][0]).toBe(expectedLog);
-    expect(globalConsole.warn.mock.calls[0][0]).toBe(expectedLog);
-    expect(globalConsole.error.mock.calls[0][0]).toBe(expectedLog);
+    expect(globalConsole.log.mock.calls[0][0]).toBe(`${defaultPrefix} ${
+      levelPrefixes.log
+    }: line1
+${defaultPrefix} ${levelPrefixes.log}: line2
+${defaultPrefix} ${levelPrefixes.log}: line3`);
+    expect(globalConsole.warn.mock.calls[0][0]).toBe(`${defaultPrefix} ${
+      levelPrefixes.warn
+    }: line1
+${defaultPrefix} ${levelPrefixes.warn}: line2
+${defaultPrefix} ${levelPrefixes.warn}: line3`);
+    expect(globalConsole.error.mock.calls[0][0]).toBe(`${defaultPrefix} ${
+      levelPrefixes.error
+    }: line1
+${defaultPrefix} ${levelPrefixes.error}: line2
+${defaultPrefix} ${levelPrefixes.error}: line3`);
   });
 });

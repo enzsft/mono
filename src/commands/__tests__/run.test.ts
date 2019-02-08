@@ -1,6 +1,7 @@
 import { createCli } from "@enzsft/cli";
 import { buildArgv } from "@enzsft/cli/test-utils";
 import { existsSync } from "fs-extra";
+import mockConsole, { RestoreConsole } from "jest-mock-console";
 import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../../mono-repo";
 import { IPackage } from "../../types";
@@ -67,13 +68,16 @@ describe("run", () => {
     description: "",
     name: "",
   });
+  let restoreConsole: RestoreConsole;
 
   beforeEach(async () => {
     await createMonoRepo(monoRepoDir, monoRepo, packages);
+    restoreConsole = mockConsole();
   });
 
   afterEach(async () => {
     await deleteMonoRepo(monoRepoDir);
+    restoreConsole();
   });
 
   it("should run the npm script in every package", async () => {

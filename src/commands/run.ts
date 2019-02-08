@@ -1,5 +1,7 @@
 import { ICommand } from "@enzsft/cli";
+import chalk from "chalk";
 import { exec } from "child_process";
+import { createConsoleLogger } from "../logger";
 import { includeOption } from "../options/include";
 import { filterPackages } from "../packages";
 import { IPackage, IRunCommandOptions } from "../types";
@@ -21,6 +23,8 @@ export const createRunCommand = (
     // All values after the script are arguments to forward onto the executing script
     const [script, ...forwardedArgs] = values;
 
+    const toolLogger = createConsoleLogger();
+
     // Build executor functions
     const executors = filterPackages(packages, options.include)
       .filter(p => p)
@@ -33,12 +37,40 @@ export const createRunCommand = (
           cwd: p.__dir,
         });
 
+        // Create logger prefixed for the executing package
+        const scriptLogger = createConsoleLogger({ prefix: `[${p.name}]: ` });
+
+        // Log stdout as normal logs
+        runner.stdout.on("data", data => {
+          scriptLogger.log(data.toString());
+        });
+
+        // Log stderr as errors
+        runner.stderr.on("data", data => {
+          scriptLogger.error(data.toString());
+        });
+
         return new Promise(
           (resolve, reject): void => {
-            // Resolve on a successful 0 exit code, else reject with the code
-            runner.on("exit", code =>
-              code === 0 ? resolve() : reject({ code }),
-            );
+            runner.on("exit", code => {
+              // Reject if the code is non zero
+              if (code !== 0) {
+                toolLogger.error(
+                  `Script ${chalk.greenBright(script)} in ${chalk.blueBright(
+                    p.name,
+                  )} exited with error code ${code} 🤕`,
+                );
+                return reject({ code });
+              }
+
+              // Resolve on successful code 0
+              toolLogger.log(
+                `Script ${chalk.greenBright(script)} in ${chalk.blueBright(
+                  p.name,
+                )} is done 🎉`,
+              );
+              return resolve();
+            });
           },
         );
       });
