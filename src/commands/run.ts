@@ -38,7 +38,7 @@ export const createRunCommand = (
         });
 
         // Create logger prefixed for the executing package
-        const scriptLogger = createConsoleLogger({ prefix: `[${p.name}]: ` });
+        const scriptLogger = createConsoleLogger({ prefix: `[${p.name}]` });
 
         // Log stdout as normal logs
         runner.stdout.on("data", data => {
