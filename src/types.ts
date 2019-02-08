@@ -55,3 +55,31 @@ export interface IRunCommandOptions {
    */
   include: string;
 }
+
+/**
+ * Simple logger
+ */
+export interface ILogger {
+  /**
+   * Log
+   */
+  log: (message: string) => void;
+  /**
+   * Log warning
+   */
+  warn: (message: string) => void;
+  /**
+   * Log error
+   */
+  error: (message: string) => void;
+}
+
+/**
+ * Logger options
+ */
+export interface ILoggerOptions {
+  /**
+   * Prefix for every line of the log message
+   */
+  prefix: string;
+}

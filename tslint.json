@@ -8,6 +8,7 @@
       "call-signature",
       "arrow-call-signature",
       "property-declaration"
-    ]
+    ],
+    "no-implicit-dependencies": [true, "dev"]
   }
 }
