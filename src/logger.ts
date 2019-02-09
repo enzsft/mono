@@ -31,7 +31,7 @@ const format = (prefix: string, level: string, message: string): string =>
       (line: string, index: number, array: string[]) =>
         !(index === array.length - 1 && line.trim().length === 0),
     )
-    .map((line: string): string => `${prefix} ${level}: ${line.trim()}`)
+    .map((line: string): string => `${prefix} ${level}: ${line.trimRight()}`)
     .join(EOL);
 
 /**

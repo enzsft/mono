@@ -70,8 +70,8 @@ describe("createConsoleLogger", () => {
     // log with multiple lines, leading whitespace,
     // traiing whitespace and blank last line
     const message = `line1
-    line2
-  line3  
+  line2
+    line3  
 `;
 
     logger.log(message);
@@ -82,20 +82,21 @@ describe("createConsoleLogger", () => {
     expect(globalConsole.warn).toHaveBeenCalledTimes(1);
     expect(globalConsole.error).toHaveBeenCalledTimes(1);
 
+    // Should maintain leading whitespace for indents, but strip trailing whilespace
     expect(globalConsole.log.mock.calls[0][0]).toBe(`${defaultPrefix} ${
       levelPrefixes.log
     }: line1
-${defaultPrefix} ${levelPrefixes.log}: line2
-${defaultPrefix} ${levelPrefixes.log}: line3`);
+${defaultPrefix} ${levelPrefixes.log}:   line2
+${defaultPrefix} ${levelPrefixes.log}:     line3`);
     expect(globalConsole.warn.mock.calls[0][0]).toBe(`${defaultPrefix} ${
       levelPrefixes.warn
     }: line1
-${defaultPrefix} ${levelPrefixes.warn}: line2
-${defaultPrefix} ${levelPrefixes.warn}: line3`);
+${defaultPrefix} ${levelPrefixes.warn}:   line2
+${defaultPrefix} ${levelPrefixes.warn}:     line3`);
     expect(globalConsole.error.mock.calls[0][0]).toBe(`${defaultPrefix} ${
       levelPrefixes.error
     }: line1
-${defaultPrefix} ${levelPrefixes.error}: line2
-${defaultPrefix} ${levelPrefixes.error}: line3`);
+${defaultPrefix} ${levelPrefixes.error}:   line2
+${defaultPrefix} ${levelPrefixes.error}:     line3`);
   });
 });

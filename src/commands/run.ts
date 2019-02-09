@@ -1,6 +1,7 @@
 import { ICommand } from "@enzsft/cli";
 import chalk from "chalk";
 import { exec } from "child_process";
+import { EOL } from "os";
 import { createConsoleLogger } from "../logger";
 import { includeOption } from "../options/include";
 import { filterPackages } from "../packages";
@@ -23,13 +24,21 @@ export const createRunCommand = (
     // All values after the script are arguments to forward onto the executing script
     const [script, ...forwardedArgs] = values;
 
+    // Determine the target packages, must match filter and contain the script
+    const targetPackages = filterPackages(packages, options.include).filter(
+      p => p.scripts && Object.keys(p.scripts).includes(script),
+    );
+
+    // Log out all packages that the NPM script wil lbe run in
     const toolLogger = createConsoleLogger();
+    toolLogger.log(`Running script ${chalk.greenBright(
+      script,
+    )} in the following packages:
+  ${targetPackages.map(p => chalk.blueBright(p.name)).join(`${EOL}  `)}`);
 
     // Build executor functions
-    const executors = filterPackages(packages, options.include)
-      .filter(p => p)
+    const executors = targetPackages
       // Filter packages that contain the script
-      .filter(p => p.scripts && Object.keys(p.scripts).includes(script))
       // Return seperate executors over immediate map() so we can execute them in sync
       .map(p => async (): Promise<void> => {
         // Run the script via yarn from the packages directory
