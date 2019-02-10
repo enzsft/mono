@@ -65,6 +65,10 @@ export interface IRunCommandOptions {
  */
 export interface IAddCommandOptions {
   /**
+   * Specify dependencies are dev dependencies
+   */
+  dev: boolean;
+  /**
    * Filter string for package names
    */
   include: string;

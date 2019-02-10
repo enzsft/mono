@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { exec } from "child_process";
 import { EOL } from "os";
 import { createConsoleLogger } from "../logger";
+import { devOption } from "../options/dev";
 import { includeOption } from "../options/include";
 import { filterPackages } from "../packages";
 import { IAddCommandOptions, IPackage } from "../types";
@@ -33,9 +34,13 @@ export const createAddCommand = (
 
     for (const pkg of targetPackages) {
       // Add the package via Yarn in the package directory
-      const runner = exec(`yarn add ${installPackageNames.join(" ")}`, {
-        cwd: pkg.__dir,
-      });
+      const devCommandPard = options.dev ? "--dev" : "";
+      const runner = exec(
+        `yarn add ${installPackageNames.join(" ")} ${devCommandPard}`,
+        {
+          cwd: pkg.__dir,
+        },
+      );
 
       // Create logger prefixed for the executing package
       const scriptLogger = createConsoleLogger({ prefix: `[${pkg.name}]` });
@@ -74,5 +79,5 @@ export const createAddCommand = (
     }
   },
   name: "add",
-  options: [includeOption],
+  options: [devOption, includeOption],
 });

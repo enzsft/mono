@@ -55,6 +55,7 @@ describe("run", () => {
   });
 
   it("should install the dependency in every package", async () => {
+    // @enzsft/npm-fixture is a special test fixture in NPM just for these tests
     await cli.start(buildArgv("add @enzsft/npm-fixture"));
 
     // Load package.json for every package and check the dependency is in there
@@ -62,7 +63,145 @@ describe("run", () => {
       const { dependencies } = await readJson(
         resolve(pkg.__dir, "package.json"),
       );
-      expect(dependencies["@enzsft/npm-fixture"]).toBe("^1.0.0");
+
+      // 1.0.1 is the latest version
+      expect(dependencies["@enzsft/npm-fixture"]).toBe("^1.0.1");
     }
+  });
+
+  it("should install the dependency at the correct version", async () => {
+    await cli.start(buildArgv("add @enzsft/npm-fixture@1.0.0"));
+
+    // Load package.json for every package and check the dependency is in there
+    for (const pkg of packages) {
+      const { dependencies } = await readJson(
+        resolve(pkg.__dir, "package.json"),
+      );
+      expect(dependencies["@enzsft/npm-fixture"]).toBe("1.0.0");
+    }
+  });
+
+  it("should install the dependency in the specified packages (option name)", async () => {
+    await cli.start(
+      buildArgv("add @enzsft/npm-fixture --include @add/a-package"),
+    );
+
+    const [a, b, bOther] = packages;
+
+    // Should be installed in this package
+    const { dependencies: aDeps } = await readJson(
+      resolve(a.__dir, "package.json"),
+    );
+    expect(aDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    // Should not be installed in these packages so no 'dependencies' property
+    // will be added to the package.json file for that package
+    const { dependencies: bDeps } = await readJson(
+      resolve(b.__dir, "package.json"),
+    );
+    expect(bDeps).toBeUndefined();
+
+    const { dependencies: bOtherDeps } = await readJson(
+      resolve(bOther.__dir, "package.json"),
+    );
+    expect(bOtherDeps).toBeUndefined();
+  });
+
+  it("should install the dependency in the specified packages (alternative name)", async () => {
+    await cli.start(buildArgv("add @enzsft/npm-fixture --i @add/a-package"));
+
+    const [a, b, bOther] = packages;
+
+    // Should be installed in this package
+    const { dependencies: aDeps } = await readJson(
+      resolve(a.__dir, "package.json"),
+    );
+    expect(aDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    // Should not be installed in these packages so no 'dependencies' property
+    // will be added to the package.json file for that package
+    const { dependencies: bDeps } = await readJson(
+      resolve(b.__dir, "package.json"),
+    );
+    expect(bDeps).toBeUndefined();
+
+    const { dependencies: bOtherDeps } = await readJson(
+      resolve(bOther.__dir, "package.json"),
+    );
+    expect(bOtherDeps).toBeUndefined();
+  });
+
+  it("should install the dependency in the specified packages (wildcard)", async () => {
+    await cli.start(buildArgv("add @enzsft/npm-fixture --i @add/b-*"));
+
+    const [a, b, bOther] = packages;
+
+    // Should not be installed in this package so no 'dependencies' property
+    // will be added to the package.json file for that package
+    const { dependencies: aDeps } = await readJson(
+      resolve(a.__dir, "package.json"),
+    );
+    expect(aDeps).toBeUndefined();
+
+    // Should be installed in these packages
+    const { dependencies: bDeps } = await readJson(
+      resolve(b.__dir, "package.json"),
+    );
+    expect(bDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    const { dependencies: bOtherDeps } = await readJson(
+      resolve(bOther.__dir, "package.json"),
+    );
+    expect(bOtherDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+  });
+
+  it("should install dev dependencies (longhand)", async () => {
+    await cli.start(
+      buildArgv("add @enzsft/npm-fixture --i @add/a-package --dev"),
+    );
+
+    const [a, b, bOther] = packages;
+
+    // Should be installed in this package
+    const { devDependencies: aDevDeps } = await readJson(
+      resolve(a.__dir, "package.json"),
+    );
+    expect(aDevDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    // Should not be installed in these packages so no 'devDependencies' property
+    // will be added to the package.json file for that package
+    const { devDependencies: bDevDeps } = await readJson(
+      resolve(b.__dir, "package.json"),
+    );
+    expect(bDevDeps).toBeUndefined();
+
+    const { devDependencies: bOtherDevDeps } = await readJson(
+      resolve(bOther.__dir, "package.json"),
+    );
+    expect(bOtherDevDeps).toBeUndefined();
+  });
+
+  it("should install dev dependencies (shorthand)", async () => {
+    await cli.start(buildArgv("add @enzsft/npm-fixture -i @add/a-package -D"));
+
+    const [a, b, bOther] = packages;
+
+    // Should be installed in this package
+    const { devDependencies: aDevDeps } = await readJson(
+      resolve(a.__dir, "package.json"),
+    );
+    expect(aDevDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    // Should not be installed in these packages so no 'devDependencies' property
+    // will be added to the package.json file for that package
+    const { devDependencies: bDevDeps } = await readJson(
+      resolve(b.__dir, "package.json"),
+    );
+    expect(bDevDeps).toBeUndefined();
+
+    const { devDependencies: bOtherDevDeps } = await readJson(
+      resolve(bOther.__dir, "package.json"),
+    );
+    expect(bOtherDevDeps).toBeUndefined();
   });
 });
