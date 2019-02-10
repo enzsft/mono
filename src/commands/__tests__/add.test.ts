@@ -6,6 +6,7 @@ import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../../mono-repo";
 import { IPackage } from "../../types";
 import { createAddCommand } from "../add";
+import { AssertionError } from "assert";
 
 describe("run", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__add__");
@@ -203,5 +204,16 @@ describe("run", () => {
       resolve(bOther.__dir, "package.json"),
     );
     expect(bOtherDevDeps).toBeUndefined();
+  });
+
+  it("should reject with exit code if Yarn install fails", async () => {
+    try {
+      expect.assertions(1);
+      await cli.start(
+        buildArgv("add hope-this-package-never-exists -i @add/a-package"),
+      );
+    } catch (error) {
+      expect(typeof error.code).toBe("number");
+    }
   });
 });
