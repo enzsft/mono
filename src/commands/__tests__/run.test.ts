@@ -83,10 +83,12 @@ describe("run", () => {
   it("should run the npm script in every package", async () => {
     await cli.start(buildArgv("run touch"));
 
-    const [a, b] = packages;
+    const [a, b, , d, dOther] = packages;
 
     expect(existsSync(resolve(a.__dir, "test.txt"))).toBe(true);
     expect(existsSync(resolve(b.__dir, "test.txt"))).toBe(true);
+    expect(existsSync(resolve(d.__dir, "test.txt"))).toBe(true);
+    expect(existsSync(resolve(dOther.__dir, "test.txt"))).toBe(true);
   });
 
   it("should reject/throw if the npm script fails", async () => {
@@ -105,7 +107,7 @@ describe("run", () => {
   it("should execute the npm script with the given arguments", async () => {
     await cli.start(buildArgv("run touch -- 1.txt 2.txt"));
 
-    const [a, b] = packages;
+    const [a, b, , d, dOther] = packages;
 
     expect(existsSync(resolve(a.__dir, "test.txt"))).toBe(true);
     expect(existsSync(resolve(a.__dir, "1.txt"))).toBe(true);
@@ -113,6 +115,12 @@ describe("run", () => {
     expect(existsSync(resolve(b.__dir, "test.txt"))).toBe(true);
     expect(existsSync(resolve(b.__dir, "1.txt"))).toBe(true);
     expect(existsSync(resolve(b.__dir, "2.txt"))).toBe(true);
+    expect(existsSync(resolve(d.__dir, "test.txt"))).toBe(true);
+    expect(existsSync(resolve(d.__dir, "1.txt"))).toBe(true);
+    expect(existsSync(resolve(d.__dir, "2.txt"))).toBe(true);
+    expect(existsSync(resolve(dOther.__dir, "test.txt"))).toBe(true);
+    expect(existsSync(resolve(dOther.__dir, "1.txt"))).toBe(true);
+    expect(existsSync(resolve(dOther.__dir, "2.txt"))).toBe(true);
   });
 
   it("should only run the npm script in the specified packages (option name)", async () => {
