@@ -1,6 +1,6 @@
 {
   "name": "@enzsft/mono",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-alpha.10",
   "description": "Manage JavaScript mono repos with ease. 😲",
   "keywords": [
     "mono",
@@ -23,7 +23,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@enzsft/cli": "^1.0.2",
+    "@enzsft/cli": "^1.0.6",
     "chalk": "^2.4.2",
     "fs-extra": "^7.0.1",
     "glob-promise": "^3.4.0"

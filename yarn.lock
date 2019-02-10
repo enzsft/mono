@@ -18,10 +18,10 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@enzsft/cli@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@enzsft/cli/-/cli-1.0.2.tgz#1b37f966d1f61793c318adc17bc37f530fa06a6b"
-  integrity sha512-v67Z5taVOv6P44aUFj7W1TCQydnIUOY2lZPItj9aSNjQzele1HqGTC1K7/waemaYQ8QxbKA+xlNP002Pj5OVPA==
+"@enzsft/cli@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@enzsft/cli/-/cli-1.0.6.tgz#1586a2e547b8371c760a1a9892cd83ec9a21d31a"
+  integrity sha512-peAjAMFyhfy3pRXsuqZw3OnFIflnzWg91ECCK4FmLvVp7QvqjS+TI5IPICyuGMvylAW9hlQzZtQKnRVNqhWXIg==
   dependencies:
     minimist "^1.2.0"
     string-argv "^0.1.1"
