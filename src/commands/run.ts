@@ -9,7 +9,7 @@ import { IPackage, IRunCommandOptions } from "../types";
 
 /**
  * Create the run command.
- * This command is used to run NPM in packages in the mono repo.
+ * This command is used to run NPM scripts in packages in the mono repo.
  * @param packages
  */
 export const createRunCommand = (

@@ -6,7 +6,8 @@ import { getPackages } from "../packages";
 const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__mono-repo__");
 const monoRepo = {
   license: "MIT",
-  name: "mono",
+  name: "mono-repo",
+  private: true,
   version: "1.0.0",
   workspaces: ["packages/*"],
 };
@@ -14,14 +15,14 @@ const packages = [
   {
     __dir: resolve(monoRepoDir, "packages/one"),
     license: "MIT",
-    name: "one",
+    name: "@mono-repo/one",
     scripts: { test: "touch test.txt" },
     version: "1.0.0",
   },
   {
     __dir: resolve(monoRepoDir, "packages/two"),
     license: "MIT",
-    name: "two",
+    name: "@mono-repo/two",
     scripts: { test: "touch test.txt" },
     version: "1.0.0",
   },

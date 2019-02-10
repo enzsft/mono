@@ -11,7 +11,8 @@ describe("run", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__run__");
   const monoRepo = {
     license: "MIT",
-    name: "mono",
+    name: "run",
+    private: true,
     version: "1.0.0",
     workspaces: ["packages/*"],
   };
@@ -19,7 +20,7 @@ describe("run", () => {
     {
       __dir: resolve(monoRepoDir, "packages/a-package"),
       license: "MIT",
-      name: "a-package",
+      name: "@run/a-package",
       scripts: {
         exit: "exit 1",
         touch: "touch test.txt",
@@ -29,7 +30,7 @@ describe("run", () => {
     {
       __dir: resolve(monoRepoDir, "packages/b-package"),
       license: "MIT",
-      name: "b-package",
+      name: "@run/b-package",
       scripts: {
         exit: "touch test.txt", // doesn't exit, creates a file so test can check it doesn't exist
         touch: "touch test.txt",
@@ -40,13 +41,13 @@ describe("run", () => {
     {
       __dir: resolve(monoRepoDir, "packages/c-package"),
       license: "MIT",
-      name: "c-package",
+      name: "@run/c-package",
       version: "1.0.0",
     },
     {
       __dir: resolve(monoRepoDir, "packages/d-package"),
       license: "MIT",
-      name: "d-package",
+      name: "@run/d-package",
       scripts: {
         touch: "touch test.txt",
       },
@@ -56,7 +57,7 @@ describe("run", () => {
     {
       __dir: resolve(monoRepoDir, "packages/d-package-other"),
       license: "MIT",
-      name: "d-package-other",
+      name: "@run/d-package-other",
       scripts: {
         touch: "touch test.txt",
       },
@@ -126,7 +127,9 @@ describe("run", () => {
   it("should only run the npm script in the specified packages (option name)", async () => {
     // include c-package to ensure no scripts is handled
     await cli.start(
-      buildArgv("run touch --include a-package,b-package,c-package"),
+      buildArgv(
+        "run touch --include @run/a-package,@run/b-package,@run/c-package",
+      ),
     );
 
     const [a, b, , d] = packages;
@@ -140,7 +143,7 @@ describe("run", () => {
   });
 
   it("should only run the npm script in the specified packages (option alt name)", async () => {
-    await cli.start(buildArgv("run touch -i a-package,b-package"));
+    await cli.start(buildArgv("run touch -i @run/a-package,@run/b-package"));
 
     const [a, b, , d] = packages;
 
@@ -153,7 +156,7 @@ describe("run", () => {
   });
 
   it("should only run the npm script in the specified packages (wildcard)", async () => {
-    await cli.start(buildArgv("run touch -i d-*"));
+    await cli.start(buildArgv("run touch -i @run/d-*"));
 
     const [, , , d, dOther] = packages;
 

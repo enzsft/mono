@@ -6,7 +6,8 @@ describe("getPackages", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__packages__");
   const monoRepo = {
     license: "MIT",
-    name: "mono",
+    name: "packages",
+    private: true,
     version: "1.0.0",
     workspaces: ["packages/*"],
   };
@@ -14,14 +15,14 @@ describe("getPackages", () => {
     {
       __dir: resolve(monoRepoDir, "packages/one"),
       license: "MIT",
-      name: "one",
+      name: "@packages/one",
       scripts: { test: "touch test.txt" },
       version: "1.0.0",
     },
     {
       __dir: resolve(monoRepoDir, "packages/two"),
       license: "MIT",
-      name: "two",
+      name: "@packages/two",
       scripts: { test: "touch test.txt" },
       version: "1.0.0",
     },

@@ -21,9 +21,13 @@ export const createMonoRepo = async (
   await ensureDir(monoRepoDir);
 
   // Create mono repo package.json
-  await writeJson(resolve(monoRepoDir, "package.json"), monoRepo, {
-    spaces: 2,
-  });
+  await writeJson(
+    resolve(monoRepoDir, "package.json"),
+    { ...monoRepo, private: true },
+    {
+      spaces: 2,
+    },
+  );
 
   // Create packages
   await Promise.all(

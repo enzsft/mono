@@ -1,5 +1,5 @@
 import mockConsole, { RestoreConsole } from "jest-mock-console";
-import { createConsoleLogger, defaultPrefix, levelPrefixes } from "../logger";
+import { createConsoleLogger, defaultPrefix } from "../logger";
 
 describe("createConsoleLogger", () => {
   let restoreConsole: RestoreConsole;
@@ -30,14 +30,12 @@ describe("createConsoleLogger", () => {
     expect(globalConsole.warn).toHaveBeenCalledTimes(1);
     expect(globalConsole.error).toHaveBeenCalledTimes(1);
 
-    expect(globalConsole.log.mock.calls[0][0]).toBe(
-      `${defaultPrefix} ${levelPrefixes.log}: ${log}`,
-    );
+    expect(globalConsole.log.mock.calls[0][0]).toBe(`${defaultPrefix}: ${log}`);
     expect(globalConsole.warn.mock.calls[0][0]).toBe(
-      `${defaultPrefix} ${levelPrefixes.warn}: ${log}`,
+      `${defaultPrefix}: ${log}`,
     );
     expect(globalConsole.error.mock.calls[0][0]).toBe(
-      `${defaultPrefix} ${levelPrefixes.error}: ${log}`,
+      `${defaultPrefix}: ${log}`,
     );
   });
 
@@ -54,15 +52,9 @@ describe("createConsoleLogger", () => {
     expect(globalConsole.warn).toHaveBeenCalledTimes(1);
     expect(globalConsole.error).toHaveBeenCalledTimes(1);
 
-    expect(globalConsole.log.mock.calls[0][0]).toBe(
-      `${prefix} ${levelPrefixes.log}: ${message}`,
-    );
-    expect(globalConsole.warn.mock.calls[0][0]).toBe(
-      `${prefix} ${levelPrefixes.warn}: ${message}`,
-    );
-    expect(globalConsole.error.mock.calls[0][0]).toBe(
-      `${prefix} ${levelPrefixes.error}: ${message}`,
-    );
+    expect(globalConsole.log.mock.calls[0][0]).toBe(`${prefix}: ${message}`);
+    expect(globalConsole.warn.mock.calls[0][0]).toBe(`${prefix}: ${message}`);
+    expect(globalConsole.error.mock.calls[0][0]).toBe(`${prefix}: ${message}`);
   });
 
   it("should format multi line logs", () => {
@@ -83,20 +75,14 @@ describe("createConsoleLogger", () => {
     expect(globalConsole.error).toHaveBeenCalledTimes(1);
 
     // Should maintain leading whitespace for indents, but strip trailing whilespace
-    expect(globalConsole.log.mock.calls[0][0]).toBe(`${defaultPrefix} ${
-      levelPrefixes.log
-    }: line1
-${defaultPrefix} ${levelPrefixes.log}:   line2
-${defaultPrefix} ${levelPrefixes.log}:     line3`);
-    expect(globalConsole.warn.mock.calls[0][0]).toBe(`${defaultPrefix} ${
-      levelPrefixes.warn
-    }: line1
-${defaultPrefix} ${levelPrefixes.warn}:   line2
-${defaultPrefix} ${levelPrefixes.warn}:     line3`);
-    expect(globalConsole.error.mock.calls[0][0]).toBe(`${defaultPrefix} ${
-      levelPrefixes.error
-    }: line1
-${defaultPrefix} ${levelPrefixes.error}:   line2
-${defaultPrefix} ${levelPrefixes.error}:     line3`);
+    expect(globalConsole.log.mock.calls[0][0]).toBe(`${defaultPrefix}: line1
+${defaultPrefix}:   line2
+${defaultPrefix}:     line3`);
+    expect(globalConsole.warn.mock.calls[0][0]).toBe(`${defaultPrefix}: line1
+${defaultPrefix}:   line2
+${defaultPrefix}:     line3`);
+    expect(globalConsole.error.mock.calls[0][0]).toBe(`${defaultPrefix}: line1
+${defaultPrefix}:   line2
+${defaultPrefix}:     line3`);
   });
 });

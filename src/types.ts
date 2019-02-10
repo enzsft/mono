@@ -11,6 +11,10 @@ export interface IMonoRepo {
    */
   name: string;
   /**
+   * Private (valid Yarn Workspace mono repos are always private)
+   */
+  private: boolean;
+  /**
    * Version
    */
   version: string;
@@ -50,6 +54,16 @@ export interface IPackage {
  * Run command options
  */
 export interface IRunCommandOptions {
+  /**
+   * Filter string for package names
+   */
+  include: string;
+}
+
+/**
+ * Add command options
+ */
+export interface IAddCommandOptions {
   /**
    * Filter string for package names
    */
