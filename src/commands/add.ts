@@ -51,7 +51,7 @@ export const createAddCommand = (
         installPackageNames.join(", "),
       )} in the following packages:${EOL}${targetPackages
         .map(p => chalk.blueBright(p.name))
-        .join(`${EOL}  `)}`,
+        .join(`${EOL}`)}`,
     );
 
     // Package by package install requested dependencies
@@ -68,6 +68,8 @@ export const createAddCommand = (
 
       // Only bother doing this install if there are packages
       if (filteredLocalPackages.length > 0) {
+        toolLogger.log("Linking local packages... 🚚");
+
         // Write local mono repo packages to the package.json first
         // The following yarn installation will link these
         const packageJsonFilePath = resolvePath(pkg.__dir, "package.json");
@@ -88,12 +90,13 @@ export const createAddCommand = (
 
         // Running a Yarn install will now link all these packages
         try {
-          toolLogger.log("Linking local packages");
           await exec("yarn install");
+          toolLogger.log("All linked ✌️");
         } catch (error) {
           // Can't figure out to test this,
           // it would depend on Yarn failing on a command that should never fail
           toolLogger.warn(error);
+          toolLogger.log("️Link failed 😱");
         }
       }
 
@@ -109,10 +112,14 @@ export const createAddCommand = (
 
       // Only bother doing this install if there are packages
       if (filteredNpmInstallPackageNames.length > 0) {
+        // Create logger prefixed for the executing package
+        const executorLogger = createConsoleLogger({ prefix: `[${pkg.name}]` });
+
         // If they are dev dependencies then append --dev
         const devCommandPart = options.dev ? "--dev" : "";
 
         // Add the package via Yarn in the package directory
+        executorLogger.log("Installing packages from NPM... 🚚");
         const runner = exec(
           `yarn add ${filteredNpmInstallPackageNames.join(
             " ",
@@ -121,9 +128,6 @@ export const createAddCommand = (
             cwd: pkg.__dir,
           },
         );
-
-        // Create logger prefixed for the executing package
-        const executorLogger = createConsoleLogger({ prefix: `[${pkg.name}]` });
 
         // Log stdout as normal logs
         runner.stdout.on("data", data => {
