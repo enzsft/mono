@@ -80,6 +80,7 @@ export const createAddCommand = (
         if (packageJson[dependencyKey] === undefined) {
           packageJson[dependencyKey] = {};
         }
+
         // Now all add packages to the key
         for (const localPackage of filteredLocalPackages) {
           packageJson[dependencyKey][localPackage.name] = `^${

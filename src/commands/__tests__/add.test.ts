@@ -55,7 +55,7 @@ describe("run", () => {
     restoreConsole();
   });
 
-  it("should install the dependency in all packages except itself (mixed)", async () => {
+  it("should install the dependencies from NPM and the local mono repo", async () => {
     // @enzsft/npm-fixture is a special test fixture in NPM just for these tests
     await cli.start(buildArgv("add @enzsft/npm-fixture @add/a-package"));
 
@@ -82,7 +82,7 @@ describe("run", () => {
     expect(bOtherDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
   });
 
-  it("should install packages from NPM in all packages (npm only)", async () => {
+  it("should install packages from NPM in all packages", async () => {
     // @enzsft/npm-fixture is a special test fixture in NPM just for these tests
     await cli.start(buildArgv("add @enzsft/npm-fixture"));
 
@@ -104,7 +104,7 @@ describe("run", () => {
     expect(bOtherDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
   });
 
-  it("should install the dependency in all packages except itself (local only)", async () => {
+  it("should install local packages in all packages except itself", async () => {
     // @enzsft/npm-fixture is a special test fixture in NPM just for these tests
     await cli.start(buildArgv("add @add/a-package"));
 
@@ -262,6 +262,36 @@ describe("run", () => {
       resolve(bOther.__dir, "package.json"),
     );
     expect(bOtherDevDeps).toBeUndefined();
+  });
+
+  it("should install dependencies when dependencies already exist", async () => {
+    // Ensure dependencies already exist
+    await cli.start(buildArgv("add @add/b-package -i @add/a-package"));
+
+    // Now add new depdencies
+    await cli.start(buildArgv("add @add/b-package-other -i @add/a-package"));
+
+    const [a] = packages;
+
+    // Should be installed in this package
+    const { dependencies } = await readJson(resolve(a.__dir, "package.json"));
+    expect(dependencies["@add/b-package-other"]).toBe("^1.0.0");
+  });
+
+  it("should install dev dependencies when dev dependencies already exist", async () => {
+    // Ensure dependencies already exist
+    await cli.start(buildArgv("add @add/b-package -i @add/a-package -D"));
+
+    // Now add new depdencies
+    await cli.start(buildArgv("add @add/b-package-other -i @add/a-package -D"));
+
+    const [a] = packages;
+
+    // Should be installed in this package
+    const { devDependencies } = await readJson(
+      resolve(a.__dir, "package.json"),
+    );
+    expect(devDependencies["@add/b-package-other"]).toBe("^1.0.0");
   });
 
   it("should reject with exit code if Yarn install fails", async () => {
