@@ -55,7 +55,7 @@ describe("run", () => {
     restoreConsole();
   });
 
-  it("should install the dependency in all packages except itself", async () => {
+  it("should install the dependency in all packages except itself (mixed)", async () => {
     // @enzsft/npm-fixture is a special test fixture in NPM just for these tests
     await cli.start(buildArgv("add @enzsft/npm-fixture @add/a-package"));
 
@@ -80,6 +80,52 @@ describe("run", () => {
     );
     expect(bOtherDeps["@add/a-package"]).toBe("^1.0.0");
     expect(bOtherDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+  });
+
+  it("should install packages from NPM in all packages (npm only)", async () => {
+    // @enzsft/npm-fixture is a special test fixture in NPM just for these tests
+    await cli.start(buildArgv("add @enzsft/npm-fixture"));
+
+    const [a, b, bOther] = packages;
+
+    const { dependencies: aDeps } = await readJson(
+      resolve(a.__dir, "package.json"),
+    );
+    expect(aDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    const { dependencies: bDeps } = await readJson(
+      resolve(b.__dir, "package.json"),
+    );
+    expect(bDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    const { dependencies: bOtherDeps } = await readJson(
+      resolve(bOther.__dir, "package.json"),
+    );
+    expect(bOtherDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+  });
+
+  it("should install the dependency in all packages except itself (local only)", async () => {
+    // @enzsft/npm-fixture is a special test fixture in NPM just for these tests
+    await cli.start(buildArgv("add @add/a-package"));
+
+    const [a, b, bOther] = packages;
+
+    // Should only install the external package not itself
+    const { dependencies: aDeps } = await readJson(
+      resolve(a.__dir, "package.json"),
+    );
+    expect(aDeps).toBeUndefined();
+
+    // Both should be installed in these packages
+    const { dependencies: bDeps } = await readJson(
+      resolve(b.__dir, "package.json"),
+    );
+    expect(bDeps["@add/a-package"]).toBe("^1.0.0");
+
+    const { dependencies: bOtherDeps } = await readJson(
+      resolve(bOther.__dir, "package.json"),
+    );
+    expect(bOtherDeps["@add/a-package"]).toBe("^1.0.0");
   });
 
   it("should install the dependency at the correct version", async () => {

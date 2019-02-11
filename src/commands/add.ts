@@ -66,32 +66,35 @@ export const createAddCommand = (
         p => p.name !== pkg.name,
       );
 
-      // Write local mono repo packages to the package.json first
-      // The following yarn installation will link these
-      const packageJsonFilePath = resolvePath(pkg.__dir, "package.json");
-      const packageJson = await readJson(packageJsonFilePath);
-      const dependencyKey = options.dev ? "devDependencies" : "dependencies";
+      // Only bother doing this install if there are packages
+      if (filteredLocalPackages.length > 0) {
+        // Write local mono repo packages to the package.json first
+        // The following yarn installation will link these
+        const packageJsonFilePath = resolvePath(pkg.__dir, "package.json");
+        const packageJson = await readJson(packageJsonFilePath);
+        const dependencyKey = options.dev ? "devDependencies" : "dependencies";
 
-      // Need to ensure key exists to add to it
-      if (packageJson[dependencyKey] === undefined) {
-        packageJson[dependencyKey] = {};
-      }
-      // Now all add packages to the key
-      for (const localPackage of filteredLocalPackages) {
-        packageJson[dependencyKey][localPackage.name] = `^${
-          localPackage.version
-        }`;
-      }
-      await writeJson(packageJsonFilePath, packageJson, { spaces: 2 });
+        // Need to ensure key exists to add to it
+        if (packageJson[dependencyKey] === undefined) {
+          packageJson[dependencyKey] = {};
+        }
+        // Now all add packages to the key
+        for (const localPackage of filteredLocalPackages) {
+          packageJson[dependencyKey][localPackage.name] = `^${
+            localPackage.version
+          }`;
+        }
+        await writeJson(packageJsonFilePath, packageJson, { spaces: 2 });
 
-      // Running a Yarn install will now link all these packages
-      try {
-        toolLogger.log("Linking local packages");
-        await exec("yarn install");
-      } catch (error) {
-        // Can't figure out to test this,
-        // it would depend on Yarn failing on a command that should never fail
-        toolLogger.warn(error);
+        // Running a Yarn install will now link all these packages
+        try {
+          toolLogger.log("Linking local packages");
+          await exec("yarn install");
+        } catch (error) {
+          // Can't figure out to test this,
+          // it would depend on Yarn failing on a command that should never fail
+          toolLogger.warn(error);
+        }
       }
 
       /**
@@ -104,53 +107,56 @@ export const createAddCommand = (
         n => extractPackageName(n) !== pkg.name,
       );
 
-      // If they are dev dependencies then append --dev
-      const devCommandPart = options.dev ? "--dev" : "";
+      // Only bother doing this install if there are packages
+      if (filteredNpmInstallPackageNames.length > 0) {
+        // If they are dev dependencies then append --dev
+        const devCommandPart = options.dev ? "--dev" : "";
 
-      // Add the package via Yarn in the package directory
-      const runner = exec(
-        `yarn add ${filteredNpmInstallPackageNames.join(
-          " ",
-        )} ${devCommandPart}`,
-        {
-          cwd: pkg.__dir,
-        },
-      );
+        // Add the package via Yarn in the package directory
+        const runner = exec(
+          `yarn add ${filteredNpmInstallPackageNames.join(
+            " ",
+          )} ${devCommandPart}`,
+          {
+            cwd: pkg.__dir,
+          },
+        );
 
-      // Create logger prefixed for the executing package
-      const executorLogger = createConsoleLogger({ prefix: `[${pkg.name}]` });
+        // Create logger prefixed for the executing package
+        const executorLogger = createConsoleLogger({ prefix: `[${pkg.name}]` });
 
-      // Log stdout as normal logs
-      runner.stdout.on("data", data => {
-        executorLogger.log(data.toString());
-      });
+        // Log stdout as normal logs
+        runner.stdout.on("data", data => {
+          executorLogger.log(data.toString());
+        });
 
-      // Log stderr as errors
-      runner.stderr.on("data", data => {
-        executorLogger.error(data.toString());
-      });
+        // Log stderr as errors
+        runner.stderr.on("data", data => {
+          executorLogger.error(data.toString());
+        });
 
-      await new Promise(
-        (resolve, reject): void => {
-          runner.on("exit", code => {
-            // Reject if the code is non zero
-            if (code !== 0) {
-              toolLogger.error(
-                `Install failed in ${chalk.blueBright(
-                  pkg.name,
-                )}. Yarn exited with error code ${code} 🤕`,
+        await new Promise(
+          (resolve, reject): void => {
+            runner.on("exit", code => {
+              // Reject if the code is non zero
+              if (code !== 0) {
+                toolLogger.error(
+                  `Install failed in ${chalk.blueBright(
+                    pkg.name,
+                  )}. Yarn exited with error code ${code} 🤕`,
+                );
+                return reject({ code });
+              }
+
+              // Resolve on successful code 0
+              toolLogger.log(
+                `Install in ${chalk.blueBright(pkg.name)} is done 🎉`,
               );
-              return reject({ code });
-            }
-
-            // Resolve on successful code 0
-            toolLogger.log(
-              `Install in ${chalk.blueBright(pkg.name)} is done 🎉`,
-            );
-            return resolve();
-          });
-        },
-      );
+              return resolve();
+            });
+          },
+        );
+      }
     }
   },
   name: "add",
