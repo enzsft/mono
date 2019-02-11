@@ -89,15 +89,8 @@ export const createAddCommand = (
         await writeJson(packageJsonFilePath, packageJson, { spaces: 2 });
 
         // Running a Yarn install will now link all these packages
-        try {
-          await exec("yarn install");
-          toolLogger.log("All linked ✌️");
-        } catch (error) {
-          // Can't figure out to test this,
-          // it would depend on Yarn failing on a command that should never fail
-          toolLogger.warn(error);
-          toolLogger.log("️Link failed 😱");
-        }
+        await exec("yarn install");
+        toolLogger.log("All linked ✌️");
       }
 
       /**
