@@ -47,16 +47,16 @@ export const createRunCommand = (
         });
 
         // Create logger prefixed for the executing package
-        const scriptLogger = createConsoleLogger({ prefix: `[${p.name}]` });
+        const executorLogger = createConsoleLogger({ prefix: `[${p.name}]` });
 
         // Log stdout as normal logs
         runner.stdout.on("data", data => {
-          scriptLogger.log(data.toString());
+          executorLogger.log(data.toString());
         });
 
         // Log stderr as errors
         runner.stderr.on("data", data => {
-          scriptLogger.error(data.toString());
+          executorLogger.error(data.toString());
         });
 
         return new Promise(

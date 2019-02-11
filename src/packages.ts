@@ -77,3 +77,36 @@ export const filterPackages = (
     ]),
   );
 };
+
+/**
+ * Extract the name from the install package string.
+ * For example "react@16.8.0" will return "react"
+ * @param nameWithMaybeVersion
+ */
+export const extractPackageName = (nameWithMaybeVersion: string): string => {
+  const isScoped = nameWithMaybeVersion.startsWith("@");
+  const strippedScopeNameWithMaybeVersion = isScoped
+    ? nameWithMaybeVersion.substring(1)
+    : nameWithMaybeVersion;
+  const name = strippedScopeNameWithMaybeVersion.split("@")[0];
+
+  // Need to restore scope prefix if it was stripped
+  return isScoped ? `@${name}` : name;
+};
+
+/**
+ * Extract the version from the install package string.
+ * For example "react@16.8.0" will return "16.8.0".
+ * Returns null if no version
+ * @param nameWithMaybeVersion
+ */
+export const extractPackageVersion = (
+  nameWithMaybeVersion: string,
+): string | null => {
+  const isScoped = nameWithMaybeVersion.startsWith("@");
+  const strippedScopeNameWithMaybeVersion = isScoped
+    ? nameWithMaybeVersion.substring(1)
+    : nameWithMaybeVersion;
+  const parts = strippedScopeNameWithMaybeVersion.split("@");
+  return parts.length > 1 ? parts[1] : null;
+};

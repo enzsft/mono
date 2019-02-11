@@ -6,7 +6,6 @@ import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../../mono-repo";
 import { IPackage } from "../../types";
 import { createAddCommand } from "../add";
-import { AssertionError } from "assert";
 
 describe("run", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__add__");
@@ -42,6 +41,7 @@ describe("run", () => {
     commands: [createAddCommand(packages)],
     description: "",
     name: "",
+    version: "1.0.0",
   });
   let restoreConsole: RestoreConsole;
 
@@ -55,19 +55,31 @@ describe("run", () => {
     restoreConsole();
   });
 
-  it("should install the dependency in every package", async () => {
+  it("should install the dependency in all packages except itself", async () => {
     // @enzsft/npm-fixture is a special test fixture in NPM just for these tests
-    await cli.start(buildArgv("add @enzsft/npm-fixture"));
+    await cli.start(buildArgv("add @enzsft/npm-fixture @add/a-package"));
 
-    // Load package.json for every package and check the dependency is in there
-    for (const pkg of packages) {
-      const { dependencies } = await readJson(
-        resolve(pkg.__dir, "package.json"),
-      );
+    const [a, b, bOther] = packages;
 
-      // 1.0.1 is the latest version
-      expect(dependencies["@enzsft/npm-fixture"]).toBe("^1.0.1");
-    }
+    // Should only install the external package not itself
+    const { dependencies: aDeps } = await readJson(
+      resolve(a.__dir, "package.json"),
+    );
+    expect(aDeps["@add/a-package"]).toBeUndefined();
+    expect(aDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    // Both should be installed in these packages
+    const { dependencies: bDeps } = await readJson(
+      resolve(b.__dir, "package.json"),
+    );
+    expect(bDeps["@add/a-package"]).toBe("^1.0.0");
+    expect(bDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    const { dependencies: bOtherDeps } = await readJson(
+      resolve(bOther.__dir, "package.json"),
+    );
+    expect(bOtherDeps["@add/a-package"]).toBe("^1.0.0");
+    expect(bOtherDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
   });
 
   it("should install the dependency at the correct version", async () => {

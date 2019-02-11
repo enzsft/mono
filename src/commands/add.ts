@@ -1,11 +1,13 @@
 import { ICommand } from "@enzsft/cli";
 import chalk from "chalk";
 import { exec } from "child_process";
+import { readJson, writeJson } from "fs-extra";
 import { EOL } from "os";
+import { resolve as resolvePath } from "path";
 import { createConsoleLogger } from "../logger";
 import { devOption } from "../options/dev";
 import { includeOption } from "../options/include";
-import { filterPackages } from "../packages";
+import { extractPackageName, filterPackages } from "../packages";
 import { IAddCommandOptions, IPackage } from "../types";
 
 /**
@@ -22,37 +24,110 @@ export const createAddCommand = (
     installPackageNames: string[],
     options: IAddCommandOptions,
   ): Promise<void> => {
+    const toolLogger = createConsoleLogger();
+
     // Determine the target packages, must match filter
     const targetPackages = filterPackages(packages, options.include);
 
-    // Log out all the packages to be installed and in what packages
-    const toolLogger = createConsoleLogger();
-    toolLogger.log(`Installing ${chalk.greenBright(
-      installPackageNames.join(", "),
-    )} in the following packages:
-  ${targetPackages.map(p => chalk.blueBright(p.name)).join(`${EOL}  `)}`);
+    // Determine install package names that exist in the local mono repo
+    // These will need to be installed differently to packages from NPM
+    const localInstallPackageNames = installPackageNames.filter(n =>
+      packages.find(p => p.name === extractPackageName(n)),
+    );
 
+    // Packages not deemed to be local to the mono repo are NPM packages
+    const npmInstallPackageNames = installPackageNames.filter(
+      n => !localInstallPackageNames.includes(extractPackageName(n)),
+    );
+
+    // Filter out local mono repo packages
+    const localPackages = packages.filter(p =>
+      localInstallPackageNames.find(n => n.startsWith(p.name)),
+    );
+
+    // Log out all the packages to be installed and in what packages
+    toolLogger.log(
+      `Installing ${chalk.greenBright(
+        installPackageNames.join(", "),
+      )} in the following packages:${EOL}${targetPackages
+        .map(p => chalk.blueBright(p.name))
+        .join(`${EOL}  `)}`,
+    );
+
+    // Package by package install requested dependencies
     for (const pkg of targetPackages) {
+      /**
+       * Install packages from the local mono repo
+       */
+
+      // Need to filter out packages that match the target package.
+      // We do not want to try and install the package in itself
+      const filteredLocalPackages = localPackages.filter(
+        p => p.name !== pkg.name,
+      );
+
+      // Write local mono repo packages to the package.json first
+      // The following yarn installation will link these
+      const packageJsonFilePath = resolvePath(pkg.__dir, "package.json");
+      const packageJson = await readJson(packageJsonFilePath);
+      const dependencyKey = options.dev ? "devDependencies" : "dependencies";
+
+      // Need to ensure key exists to add to it
+      if (packageJson[dependencyKey] === undefined) {
+        packageJson[dependencyKey] = {};
+      }
+      // Now all add packages to the key
+      for (const localPackage of filteredLocalPackages) {
+        packageJson[dependencyKey][localPackage.name] = `^${
+          localPackage.version
+        }`;
+      }
+      await writeJson(packageJsonFilePath, packageJson, { spaces: 2 });
+
+      // Running a Yarn install will now link all these packages
+      try {
+        toolLogger.log("Linking local packages");
+        await exec("yarn install");
+      } catch (error) {
+        // Can't figure out to test this,
+        // it would depend on Yarn failing on a command that should never fail
+        toolLogger.warn(error);
+      }
+
+      /**
+       * Install packages from NPM
+       */
+
+      // Need to filter out packages that match the target package.
+      // We do not want to try and install the package in itself
+      const filteredNpmInstallPackageNames = npmInstallPackageNames.filter(
+        n => extractPackageName(n) !== pkg.name,
+      );
+
+      // If they are dev dependencies then append --dev
+      const devCommandPart = options.dev ? "--dev" : "";
+
       // Add the package via Yarn in the package directory
-      const devCommandPard = options.dev ? "--dev" : "";
       const runner = exec(
-        `yarn add ${installPackageNames.join(" ")} ${devCommandPard}`,
+        `yarn add ${filteredNpmInstallPackageNames.join(
+          " ",
+        )} ${devCommandPart}`,
         {
           cwd: pkg.__dir,
         },
       );
 
       // Create logger prefixed for the executing package
-      const scriptLogger = createConsoleLogger({ prefix: `[${pkg.name}]` });
+      const executorLogger = createConsoleLogger({ prefix: `[${pkg.name}]` });
 
       // Log stdout as normal logs
       runner.stdout.on("data", data => {
-        scriptLogger.log(data.toString());
+        executorLogger.log(data.toString());
       });
 
       // Log stderr as errors
       runner.stderr.on("data", data => {
-        scriptLogger.error(data.toString());
+        executorLogger.error(data.toString());
       });
 
       await new Promise(

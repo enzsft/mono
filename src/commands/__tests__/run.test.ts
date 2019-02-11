@@ -68,6 +68,7 @@ describe("run", () => {
     commands: [createRunCommand(packages)],
     description: "",
     name: "",
+    version: "1.0.0",
   });
   let restoreConsole: RestoreConsole;
 

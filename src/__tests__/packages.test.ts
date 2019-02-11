@@ -1,6 +1,11 @@
 import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../mono-repo";
-import { filterPackages, getPackages } from "../packages";
+import {
+  extractPackageName,
+  extractPackageVersion,
+  filterPackages,
+  getPackages,
+} from "../packages";
 
 describe("getPackages", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__packages__");
@@ -85,5 +90,30 @@ describe("filterPackages", () => {
 
     // Name/wildcard mix
     expect(filterPackages(packages, "one,t*")).toEqual([one, two, three]);
+  });
+});
+
+describe("extractPackageName", () => {
+  it("should extract the package name", () => {
+    expect(extractPackageName("test")).toBe("test");
+    expect(extractPackageName("test@1")).toBe("test");
+    expect(extractPackageName("test@1.0")).toBe("test");
+    expect(extractPackageName("test@^1.0.0")).toBe("test");
+    expect(extractPackageName("@test/one")).toBe("@test/one");
+    expect(extractPackageName("@test/one@1.0.0")).toBe("@test/one");
+  });
+});
+
+describe("extractPackageVersion", () => {
+  it("should extract the package version", () => {
+    expect(extractPackageVersion("test@1")).toBe("1");
+    expect(extractPackageVersion("test@1.0.0")).toBe("1.0.0");
+    expect(extractPackageVersion("test@^1.0.0")).toBe("^1.0.0");
+    expect(extractPackageVersion("@test/one@1.0.0")).toBe("1.0.0");
+  });
+
+  it("should return null if no version is present", () => {
+    expect(extractPackageVersion("test")).toBeNull();
+    expect(extractPackageVersion("@test/one")).toBeNull();
   });
 });
