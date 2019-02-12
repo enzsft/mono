@@ -1,7 +1,6 @@
 import { ICommand } from "@enzsft/cli";
 import chalk from "chalk";
 import { exec } from "child_process";
-import { EOL } from "os";
 import { createConsoleLogger } from "../logger";
 import { includeOption } from "../options/include";
 import { filterPackages } from "../packages";
@@ -31,10 +30,13 @@ export const createRunCommand = (
 
     // Log out all packages that the NPM script wil lbe run in
     const toolLogger = createConsoleLogger();
-    toolLogger.log(`Running script ${chalk.greenBright(
-      script,
-    )} in the following packages:
-  ${targetPackages.map(p => chalk.blueBright(p.name)).join(`${EOL}  `)}`);
+    toolLogger.log(
+      `Running script ${chalk.greenBright(
+        script,
+      )} in the following packages: [${targetPackages
+        .map(p => chalk.blueBright(p.name))
+        .join(`,  `)}]`,
+    );
 
     // Build executor functions
     const executors = targetPackages

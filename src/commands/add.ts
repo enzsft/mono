@@ -2,7 +2,6 @@ import { ICommand } from "@enzsft/cli";
 import chalk from "chalk";
 import { exec } from "child_process";
 import { readJson, writeJson } from "fs-extra";
-import { EOL } from "os";
 import { resolve as resolvePath } from "path";
 import { createConsoleLogger } from "../logger";
 import { devOption } from "../options/dev";
@@ -49,9 +48,9 @@ export const createAddCommand = (
     toolLogger.log(
       `Installing ${chalk.greenBright(
         installPackageNames.join(", "),
-      )} in the following packages:${EOL}${targetPackages
+      )} in the following packages:[${targetPackages
         .map(p => chalk.blueBright(p.name))
-        .join(`${EOL}`)}`,
+        .join(`, `)}]`,
     );
 
     // Package by package install requested dependencies
