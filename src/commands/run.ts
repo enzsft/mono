@@ -21,11 +21,6 @@ export const createRunCommand = (
   ): Promise<void> => {
     const logger = createConsoleLogger();
 
-    if (packages.length === 0) {
-      logger.warn("No packages found 😰");
-      return;
-    }
-
     // The script to execute will always be the first value
     // All values after the script are arguments to forward onto the executing script
     const [script, ...forwardedArgs] = values;
@@ -34,6 +29,11 @@ export const createRunCommand = (
     const targetPackages = filterPackages(packages, options.include).filter(
       p => p.scripts && Object.keys(p.scripts).includes(script),
     );
+
+    if (targetPackages.length === 0) {
+      logger.warn("No packages found 😰");
+      return;
+    }
 
     // Log out all packages that the NPM script wil lbe run in
     logger.log(

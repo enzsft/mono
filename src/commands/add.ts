@@ -25,13 +25,13 @@ export const createAddCommand = (
   ): Promise<void> => {
     const logger = createConsoleLogger();
 
-    if (packages.length === 0) {
+    // Determine the target packages, must match filter
+    const targetPackages = filterPackages(packages, options.include);
+
+    if (targetPackages.length === 0) {
       logger.warn("No packages found 😰");
       return;
     }
-
-    // Determine the target packages, must match filter
-    const targetPackages = filterPackages(packages, options.include);
 
     // Determine install package names that exist in the local mono repo
     // These will need to be installed differently to packages from NPM
