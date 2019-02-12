@@ -10,6 +10,7 @@ import { createRunCommand } from "../run";
 describe("run", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__run__");
   const monoRepo = {
+    __dir: "",
     license: "MIT",
     name: "run",
     private: true,
@@ -80,6 +81,17 @@ describe("run", () => {
   afterEach(async () => {
     await deleteMonoRepo(monoRepoDir);
     restoreConsole();
+  });
+
+  it("should not do anything if not given any packages", async () => {
+    const cliWithNoPackages = createCli({
+      commands: [createRunCommand([])],
+      description: "",
+      name: "",
+      version: "1.0.0",
+    });
+
+    await cliWithNoPackages.start(buildArgv("run touch"));
   });
 
   it("should run the npm script in every package", async () => {

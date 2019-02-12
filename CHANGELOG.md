@@ -9,10 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added dev option
-- Added include option
-- Added add command
-- Added run command
-- Added functions to create/delete mono repos, primarily for tests
-- Added function to get packages in a given mono repo
+- Add and Run commands
+- Include and Dev options
+- Package functions to get/filter packages and parse name/version strings
+- Mono repo function to load mono repo config from directory in a mono repo
+- Mono repo functions to create/delete whole mono repos for tests
 - Setup repo

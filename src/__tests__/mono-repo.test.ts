@@ -76,6 +76,8 @@ describe("getMonoRepo", () => {
       ...monoRepo,
       __dir: monoRepoDir,
     });
+
+    deleteMonoRepo(monoRepoDir);
   });
 
   it("should return null if no config is found", async () => {
@@ -83,5 +85,7 @@ describe("getMonoRepo", () => {
 
     // Probably safest to use OS's tmp directory for this... maybe?
     expect(await getMonoRepo(tmpdir())).toBeNull();
+
+    deleteMonoRepo(monoRepoDir);
   });
 });

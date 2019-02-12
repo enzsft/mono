@@ -19,6 +19,13 @@ export const createRunCommand = (
     values: string[],
     options: IRunCommandOptions,
   ): Promise<void> => {
+    const logger = createConsoleLogger();
+
+    if (packages.length === 0) {
+      logger.warn("No packages found 😰");
+      return;
+    }
+
     // The script to execute will always be the first value
     // All values after the script are arguments to forward onto the executing script
     const [script, ...forwardedArgs] = values;
@@ -29,8 +36,7 @@ export const createRunCommand = (
     );
 
     // Log out all packages that the NPM script wil lbe run in
-    const toolLogger = createConsoleLogger();
-    toolLogger.log(
+    logger.log(
       `Running script ${chalk.greenBright(
         script,
       )} in the following packages: [${targetPackages
@@ -49,16 +55,16 @@ export const createRunCommand = (
         });
 
         // Create logger prefixed for the executing package
-        const executorLogger = createConsoleLogger({ prefix: `[${p.name}]` });
+        const packageLoger = createConsoleLogger({ prefix: `[${p.name}]` });
 
         // Log stdout as normal logs
         runner.stdout.on("data", data => {
-          executorLogger.log(data.toString());
+          packageLoger.log(data.toString());
         });
 
         // Log stderr as errors
         runner.stderr.on("data", data => {
-          executorLogger.error(data.toString());
+          packageLoger.error(data.toString());
         });
 
         return new Promise(
@@ -66,7 +72,7 @@ export const createRunCommand = (
             runner.on("exit", code => {
               // Reject if the code is non zero
               if (code !== 0) {
-                toolLogger.error(
+                logger.error(
                   `Script ${chalk.greenBright(script)} in ${chalk.blueBright(
                     p.name,
                   )} exited with error code ${code} 🤕`,
@@ -75,7 +81,7 @@ export const createRunCommand = (
               }
 
               // Resolve on successful code 0
-              toolLogger.log(
+              logger.log(
                 `Script ${chalk.greenBright(script)} in ${chalk.blueBright(
                   p.name,
                 )} is done 🎉`,

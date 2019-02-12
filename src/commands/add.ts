@@ -23,7 +23,12 @@ export const createAddCommand = (
     installPackageNames: string[],
     options: IAddCommandOptions,
   ): Promise<void> => {
-    const toolLogger = createConsoleLogger();
+    const logger = createConsoleLogger();
+
+    if (packages.length === 0) {
+      logger.warn("No packages found 😰");
+      return;
+    }
 
     // Determine the target packages, must match filter
     const targetPackages = filterPackages(packages, options.include);
@@ -45,7 +50,7 @@ export const createAddCommand = (
     );
 
     // Log out all the packages to be installed and in what packages
-    toolLogger.log(
+    logger.log(
       `Installing ${chalk.greenBright(
         installPackageNames.join(", "),
       )} in the following packages:[${targetPackages
@@ -67,7 +72,7 @@ export const createAddCommand = (
 
       // Only bother doing this install if there are packages
       if (filteredLocalPackages.length > 0) {
-        toolLogger.log("Linking local packages... 🚚");
+        logger.log("Linking local packages... 🚚");
 
         // Write local mono repo packages to the package.json first
         // The following yarn installation will link these
@@ -90,7 +95,7 @@ export const createAddCommand = (
 
         // Running a Yarn install will now link all these packages
         await exec("yarn install");
-        toolLogger.log("All linked ✌️");
+        logger.log("All linked ✌️");
       }
 
       /**
@@ -106,13 +111,13 @@ export const createAddCommand = (
       // Only bother doing this install if there are packages
       if (filteredNpmInstallPackageNames.length > 0) {
         // Create logger prefixed for the executing package
-        const executorLogger = createConsoleLogger({ prefix: `[${pkg.name}]` });
+        const packageLogger = createConsoleLogger({ prefix: `[${pkg.name}]` });
 
         // If they are dev dependencies then append --dev
         const devCommandPart = options.dev ? "--dev" : "";
 
         // Add the package via Yarn in the package directory
-        executorLogger.log("Installing packages from NPM... 🚚");
+        packageLogger.log("Installing packages from NPM... 🚚");
         const runner = exec(
           `yarn add ${filteredNpmInstallPackageNames.join(
             " ",
@@ -124,12 +129,12 @@ export const createAddCommand = (
 
         // Log stdout as normal logs
         runner.stdout.on("data", data => {
-          executorLogger.log(data.toString());
+          packageLogger.log(data.toString());
         });
 
         // Log stderr as errors
         runner.stderr.on("data", data => {
-          executorLogger.error(data.toString());
+          packageLogger.error(data.toString());
         });
 
         await new Promise(
@@ -137,7 +142,7 @@ export const createAddCommand = (
             runner.on("exit", code => {
               // Reject if the code is non zero
               if (code !== 0) {
-                toolLogger.error(
+                logger.error(
                   `Install failed in ${chalk.blueBright(
                     pkg.name,
                   )}. Yarn exited with error code ${code} 🤕`,
@@ -146,9 +151,7 @@ export const createAddCommand = (
               }
 
               // Resolve on successful code 0
-              toolLogger.log(
-                `Install in ${chalk.blueBright(pkg.name)} is done 🎉`,
-              );
+              logger.log(`Install in ${chalk.blueBright(pkg.name)} is done 🎉`);
               return resolve();
             });
           },
