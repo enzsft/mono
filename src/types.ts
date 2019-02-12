@@ -3,6 +3,10 @@
  */
 export interface IMonoRepo {
   /**
+   * The directory this mon repo config is located in. Meta data not found in the package.json
+   */
+  __dir: string;
+  /**
    * License
    */
   license: string;
@@ -29,6 +33,10 @@ export interface IMonoRepo {
  */
 export interface IPackage {
   /**
+   * The directory this package is located in. Meta data not found in the package.json
+   */
+  __dir: string;
+  /**
    * License
    */
   license: string;
@@ -44,10 +52,6 @@ export interface IPackage {
    * Version
    */
   version: string;
-  /**
-   * The directory this package is located in. Meta data not found in the package.json
-   */
-  __dir: string;
 }
 
 /**

@@ -1,10 +1,12 @@
 import { existsSync, readJson } from "fs-extra";
+import { tmpdir } from "os";
 import { resolve } from "path";
-import { createMonoRepo, deleteMonoRepo } from "../mono-repo";
+import { createMonoRepo, deleteMonoRepo, getMonoRepo } from "../mono-repo";
 import { getPackages } from "../packages";
 
 const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__mono-repo__");
 const monoRepo = {
+  __dir: "",
   license: "MIT",
   name: "mono-repo",
   private: true,
@@ -55,5 +57,31 @@ describe("deleteMonoRepo", () => {
 
     const monoRepoExists = existsSync(monoRepoDir);
     expect(monoRepoExists).toBe(false);
+  });
+});
+
+describe("getMonoRepo", () => {
+  it("should find the config up the file tree", async () => {
+    await createMonoRepo(monoRepoDir, monoRepo, packages);
+
+    expect(await getMonoRepo(monoRepoDir)).toEqual({
+      ...monoRepo,
+      __dir: monoRepoDir,
+    });
+    expect(await getMonoRepo(resolve(monoRepoDir, "packages"))).toEqual({
+      ...monoRepo,
+      __dir: monoRepoDir,
+    });
+    expect(await getMonoRepo(resolve(monoRepoDir, "packages/one"))).toEqual({
+      ...monoRepo,
+      __dir: monoRepoDir,
+    });
+  });
+
+  it("should return null if no config is found", async () => {
+    await createMonoRepo(monoRepoDir, monoRepo, packages);
+
+    // Probably safest to use OS's tmp directory for this... maybe?
+    expect(await getMonoRepo(tmpdir())).toBeNull();
   });
 });

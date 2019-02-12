@@ -1,23 +1,27 @@
 import { readJson } from "fs-extra";
 import glob from "glob-promise";
 import { resolve } from "path";
+import { getMonoRepo } from "./mono-repo";
 import { IMonoRepo, IPackage } from "./types";
 
 /**
  * Get all packages in a mono repo
- * @param monoRepoDir
+ * @param currentDir
  */
-export const getPackages = async (monoRepoDir: string): Promise<IPackage[]> => {
+export const getPackages = async (currentDir: string): Promise<IPackage[]> => {
   // Load mono repo config
-  const monoRepo: IMonoRepo = await readJson(
-    resolve(monoRepoDir, "package.json"),
-  );
+  const monoRepo: IMonoRepo | null = await getMonoRepo(currentDir);
+
+  // If we can't find a mono repo then we can't find any packages
+  if (!monoRepo) {
+    return [];
+  }
 
   // Load all packages config
 
   // Build globs to packages package.json files
   const packageGlobs = monoRepo.workspaces.map(x =>
-    resolve(monoRepoDir, x, "package.json"),
+    resolve(monoRepo.__dir, x, "package.json"),
   );
 
   // Find all paths to package.jsons via globs

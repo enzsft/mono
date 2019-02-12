@@ -1,3 +1,4 @@
+import { tmpdir } from "os";
 import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../mono-repo";
 import {
@@ -10,6 +11,7 @@ import {
 describe("getPackages", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__packages__");
   const monoRepo = {
+    __dir: "",
     license: "MIT",
     name: "packages",
     private: true,
@@ -45,6 +47,23 @@ describe("getPackages", () => {
     const foundPackages = await getPackages(monoRepoDir);
 
     expect(foundPackages).toEqual(packages);
+  });
+
+  it("should traverse file tree up until it finds a mono repo package.json", async () => {
+    // Start search inside a package in a mono repo
+    const foundPackages = await getPackages(
+      resolve(monoRepoDir, "packages/one"),
+    );
+
+    // Should have walked the file tree up until it found the
+    // mono repo config with the workspace globs
+    expect(foundPackages).toEqual(packages);
+  });
+
+  it("should return an empty array if it can not find a mono repo", async () => {
+    const foundPackages = await getPackages(tmpdir());
+
+    expect(foundPackages).toEqual([]);
   });
 });
 
