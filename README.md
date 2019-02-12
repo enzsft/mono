@@ -15,9 +15,13 @@
 </div>
 <hr />
 
-Managing monorepos should be easy. We've written **@enzsft/mono** to make it easy to work with monorepos and perform common tasks across multiple packages easily!
+Managing mono repos should be easy. We've written **@enzsft/mono** to make it easy to work with mono repos and perform common tasks across multiple packages easily!
+
+**This package has a hard dependency on [Yarn Workspaces](https://yarnpkg.com/lang/en/docs/workspaces/). Please ensure you have Yarn installed and Workspaces enabled.**
 
 ## Motivation 🧐
+
+Yarn Workspaces are amazing! We ❤️ them! However they're missing a few features that we think are essential to a complete mono repo tool. This package merely builds upon Yarn Workspaces and adds a few features we hope they'll add in the future 🙂. Seriously, Yarn does **all** the heavy lifting in this package so you know you're in good hands, we merely orchestrate it and nudge it in the right direction.
 
 ## Getting started 🏎
 
@@ -27,6 +31,60 @@ Getting up and running is fast! ⚡️
 
 ```bash
 yarn global add @enzsft/mono
+```
+
+### 2. Use the tool:
+
+```bash
+# Add react to all packages
+mono add react react-dom
+```
+
+## Commands
+
+### Add
+
+Use the Add command to add dependencies to packages in your mono repo.
+
+```bash
+mono add react react-dom
+
+# Dev dependencies
+mono add jest --dev
+
+## Shorthand dev dependencies
+mono add jest -D
+```
+
+### Run
+
+Use the Run command to run NPM scripts in packages in your mono repo.
+
+```bash
+mono run start
+
+# Forwarding arguments to the NPM script
+mono run test -- --coverage
+```
+
+## Common options
+
+### Include
+
+Use the Include option to filter packages on a command:
+
+```bash
+# Only add to the package named 'app'
+mono add react react-dom --include app
+
+# Shorthand
+mono add react react-dom -i app
+
+# Only add to the packages named 'app' and 'e2e'
+mono add jest --include app,e2e
+
+# Add to all packages starting with 'app-'
+mono add react react-dom --include app-*
 ```
 
 ## Built with TypeScript with 💖
