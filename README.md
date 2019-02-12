@@ -52,7 +52,7 @@ mono add react react-dom
 # Dev dependencies
 mono add jest --dev
 
-## Shorthand dev dependencies
+# Shorthand dev dependencies
 mono add jest -D
 ```
 
