@@ -91,10 +91,13 @@ export const createAddCommand = (
             localPackage.version
           }`;
         }
+
         await writeJson(packageJsonFilePath, packageJson, { spaces: 2 });
 
         // Running a Yarn install will now link all these packages
-        await exec("yarn install");
+        // We don't simply run `yarn workspace add abc` for each package because it is slower
+        // This way we only make yarn work once
+        await exec("yarn");
         logger.log("All linked ✌️");
       }
 

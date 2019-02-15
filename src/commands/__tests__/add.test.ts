@@ -1,13 +1,13 @@
 import { createCli } from "@enzsft/cli";
 import { buildArgv } from "@enzsft/cli/test-utils";
-import { readJson } from "fs-extra";
+import { existsSync, readJson } from "fs-extra";
 import mockConsole, { RestoreConsole } from "jest-mock-console";
 import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../../mono-repo";
 import { IPackage } from "../../types";
 import { createAddCommand } from "../add";
 
-describe("run", () => {
+describe("add", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__add__");
   const monoRepo = {
     __dir: "",
@@ -45,6 +45,9 @@ describe("run", () => {
     version: "1.0.0",
   });
   let restoreConsole: RestoreConsole;
+
+  const checkNodeModuleExists = (name: string): boolean =>
+    existsSync(resolve(monoRepoDir, "node_modules", name));
 
   beforeEach(async () => {
     await createMonoRepo(monoRepoDir, monoRepo, packages);
@@ -92,6 +95,10 @@ describe("run", () => {
     );
     expect(bOtherDeps["@add/a-package"]).toBe("^1.0.0");
     expect(bOtherDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    // node_modules should be populated
+    expect(checkNodeModuleExists("@enzsft/npm-fixture")).toBe(true);
+    expect(checkNodeModuleExists("@add/a-package")).toBe(true);
   });
 
   it("should install packages from NPM in all packages", async () => {
@@ -114,6 +121,9 @@ describe("run", () => {
       resolve(bOther.__dir, "package.json"),
     );
     expect(bOtherDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    // node_modules should be populated
+    expect(checkNodeModuleExists("@enzsft/npm-fixture")).toBe(true);
   });
 
   it("should install local packages in all packages except itself", async () => {
@@ -150,6 +160,9 @@ describe("run", () => {
       );
       expect(dependencies["@enzsft/npm-fixture"]).toBe("1.0.0");
     }
+
+    // node_modules should be populated
+    expect(checkNodeModuleExists("@enzsft/npm-fixture")).toBe(true);
   });
 
   it("should install the dependency in the specified packages (option name)", async () => {
@@ -176,6 +189,9 @@ describe("run", () => {
       resolve(bOther.__dir, "package.json"),
     );
     expect(bOtherDeps).toBeUndefined();
+
+    // node_modules should be populated
+    expect(checkNodeModuleExists("@enzsft/npm-fixture")).toBe(true);
   });
 
   it("should install the dependency in the specified packages (alternative name)", async () => {
@@ -200,6 +216,9 @@ describe("run", () => {
       resolve(bOther.__dir, "package.json"),
     );
     expect(bOtherDeps).toBeUndefined();
+
+    // node_modules should be populated
+    expect(checkNodeModuleExists("@enzsft/npm-fixture")).toBe(true);
   });
 
   it("should install the dependency in the specified packages (wildcard)", async () => {
@@ -224,6 +243,9 @@ describe("run", () => {
       resolve(bOther.__dir, "package.json"),
     );
     expect(bOtherDeps["@enzsft/npm-fixture"]).toBe("^1.0.1");
+
+    // node_modules should be populated
+    expect(checkNodeModuleExists("@enzsft/npm-fixture")).toBe(true);
   });
 
   it("should install dev dependencies (longhand)", async () => {
@@ -250,6 +272,9 @@ describe("run", () => {
       resolve(bOther.__dir, "package.json"),
     );
     expect(bOtherDevDeps).toBeUndefined();
+
+    // node_modules should be populated
+    expect(checkNodeModuleExists("@enzsft/npm-fixture")).toBe(true);
   });
 
   it("should install dev dependencies (shorthand)", async () => {
@@ -274,6 +299,9 @@ describe("run", () => {
       resolve(bOther.__dir, "package.json"),
     );
     expect(bOtherDevDeps).toBeUndefined();
+
+    // node_modules should be populated
+    expect(checkNodeModuleExists("@enzsft/npm-fixture")).toBe(true);
   });
 
   it("should install dependencies when dependencies already exist", async () => {
@@ -288,6 +316,8 @@ describe("run", () => {
     // Should be installed in this package
     const { dependencies } = await readJson(resolve(a.__dir, "package.json"));
     expect(dependencies["@add/b-package-other"]).toBe("^1.0.0");
+
+    // node_modules won't be populated until NPM packages have been installed
   });
 
   it("should install dev dependencies when dev dependencies already exist", async () => {
@@ -304,9 +334,11 @@ describe("run", () => {
       resolve(a.__dir, "package.json"),
     );
     expect(devDependencies["@add/b-package-other"]).toBe("^1.0.0");
+
+    // node_modules won't be populated until NPM packages have been installed
   });
 
-  it("should reject with exit code if Yarn install fails", async () => {
+  it("should reject with eit code if Yarn install fails", async () => {
     try {
       expect.assertions(1);
       await cli.start(
