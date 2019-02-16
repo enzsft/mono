@@ -2,6 +2,7 @@
 
 import { createCli } from "@enzsft/cli";
 import { createAddCommand } from "./commands/add";
+import { createRemoveCommand } from "./commands/remove";
 import { createRunCommand } from "./commands/run";
 import { getMonoRepo } from "./mono-repo";
 import { getPackages } from "./packages";
@@ -15,6 +16,7 @@ const run = async (): Promise<void> => {
     commands: [
       createAddCommand(packages, monoRepo),
       createRunCommand(packages, monoRepo),
+      createRemoveCommand(packages, monoRepo),
     ],
     description: "Manage JavaScript mono repos with ease. 😲",
     name: "mono",
