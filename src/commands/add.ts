@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { exec } from "child_process";
 import { readJson, writeJson } from "fs-extra";
 import { resolve as resolvePath } from "path";
+import { applyRandomColor } from "../colors";
 import { createConsoleLogger } from "../logger";
 import { devOption } from "../options/dev";
 import { includeOption } from "../options/include";
@@ -121,7 +122,9 @@ export const createAddCommand = (
       // Only bother doing this install if there are packages
       if (filteredNpmInstallPackageNames.length > 0) {
         // Create logger prefixed for the executing package
-        const packageLogger = createConsoleLogger({ prefix: `[${pkg.name}]` });
+        const packageLogger = createConsoleLogger({
+          prefix: applyRandomColor(`[${pkg.name}]`),
+        });
 
         // If they are dev dependencies then append --dev
         const devCommandPart = options.dev ? "--dev" : "";

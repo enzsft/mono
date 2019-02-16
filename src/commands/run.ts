@@ -1,6 +1,7 @@
 import { ICommand } from "@enzsft/cli";
 import chalk from "chalk";
 import { exec } from "child_process";
+import { applyRandomColor } from "../colors";
 import { createConsoleLogger } from "../logger";
 import { includeOption } from "../options/include";
 import { filterPackages } from "../packages";
@@ -56,7 +57,9 @@ export const createRunCommand = (
             cwd: p.__dir,
           });
           // Create logger prefixed for the executing package
-          const packageLoger = createConsoleLogger({ prefix: `[${p.name}]` });
+          const packageLoger = createConsoleLogger({
+            prefix: applyRandomColor(`[${p.name}]`),
+          });
           // Log stdout as normal logs
           runner.stdout.on("data", data => {
             packageLoger.log(data.toString());

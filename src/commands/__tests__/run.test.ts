@@ -92,6 +92,8 @@ describe("run", () => {
     });
 
     await cliWithNoPackages.start(buildArgv("run touch"));
+
+    // Expected to resolve and not reject
   });
 
   it("should not do anything if not given any packages", async () => {
@@ -103,6 +105,8 @@ describe("run", () => {
     });
 
     await cliWithNoPackages.start(buildArgv("run touch"));
+
+    // Expected to resolve and not reject
   });
 
   it("should run the npm script in every package", async () => {

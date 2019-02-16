@@ -69,6 +69,8 @@ describe("add", () => {
     });
 
     await cliWithNoPackages.start(buildArgv("add @enzsft/npm-fixture"));
+
+    // Expected to resolve and not reject
   });
 
   it("should not do anything if not given any packages", async () => {
@@ -80,6 +82,8 @@ describe("add", () => {
     });
 
     await cliWithNoPackages.start(buildArgv("add @enzsft/npm-fixture"));
+
+    // Expected to resolve and not reject
   });
 
   it("should install the dependencies from NPM and the local mono repo", async () => {

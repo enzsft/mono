@@ -73,6 +73,8 @@ describe("remove", () => {
     });
 
     await cliWithNoPackages.start(buildArgv("remove @enzsft/npm-fixture"));
+
+    // Expected to resolve and not reject
   });
 
   it("should not do anything if not given any packages", async () => {
@@ -84,6 +86,8 @@ describe("remove", () => {
     });
 
     await cliWithNoPackages.start(buildArgv("remove @enzsft/npm-fixture"));
+
+    // Expected to resolve and not reject
   });
 
   it("should remove installed dependencies", async () => {
