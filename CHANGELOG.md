@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add and Run commands
+- Add, Remove and Run commands
 - Include and Dev options
 - Package functions to get/filter packages and parse name/version strings
 - Mono repo function to load mono repo config from directory in a mono repo
