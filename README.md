@@ -67,6 +67,14 @@ mono run start
 mono run test -- --coverage
 ```
 
+### Remove
+
+Use the Remove command to remove dependencies from packages in your mono repo.
+
+```bash
+mono remove react react-dom
+```
+
 ## Common options
 
 ### Include
