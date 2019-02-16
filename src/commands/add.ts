@@ -7,7 +7,7 @@ import { createConsoleLogger } from "../logger";
 import { devOption } from "../options/dev";
 import { includeOption } from "../options/include";
 import { extractPackageName, filterPackages } from "../packages";
-import { IAddCommandOptions, IPackage } from "../types";
+import { IAddCommandOptions, IMonoRepo, IPackage } from "../types";
 
 /**
  * Create the add command.
@@ -17,13 +17,20 @@ import { IAddCommandOptions, IPackage } from "../types";
  */
 export const createAddCommand = (
   packages: IPackage[],
+  monoRepo: IMonoRepo | null,
 ): ICommand<IAddCommandOptions> => ({
-  description: "Install packages from NPM or the mono repo.",
+  description: "Install dependencies from NPM or your local mono repo.",
   handler: async (
     installPackageNames: string[],
     options: IAddCommandOptions,
   ): Promise<void> => {
     const logger = createConsoleLogger();
+
+    // Can't continue if not in a mono repo
+    if (!monoRepo) {
+      logger.warn("Unable to locate your mono repo 😰");
+      return;
+    }
 
     // Determine the target packages, must match filter
     const targetPackages = filterPackages(packages, options.include);
@@ -97,7 +104,7 @@ export const createAddCommand = (
         // Running a Yarn install will now link all these packages
         // We don't simply run `yarn workspace add abc` for each package because it is slower
         // This way we only make yarn work once
-        await exec("yarn");
+        await exec("yarn", { cwd: monoRepo.__dir });
         logger.log("All linked ✌️");
       }
 

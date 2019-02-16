@@ -79,6 +79,16 @@ export interface IAddCommandOptions {
 }
 
 /**
+ * Remove command options
+ */
+export interface IRemoveCommandOptions {
+  /**
+   * Filter string for package names
+   */
+  include: string;
+}
+
+/**
  * Simple logger
  */
 export interface ILogger {

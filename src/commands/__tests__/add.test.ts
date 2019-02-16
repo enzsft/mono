@@ -5,12 +5,13 @@ import mockConsole, { RestoreConsole } from "jest-mock-console";
 import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../../mono-repo";
 import { IPackage } from "../../types";
+import { wait } from "../../wait";
 import { createAddCommand } from "../add";
 
 describe("add", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__add__");
   const monoRepo = {
-    __dir: "",
+    __dir: monoRepoDir,
     license: "MIT",
     name: "add",
     private: true,
@@ -39,7 +40,7 @@ describe("add", () => {
     },
   ];
   const cli = createCli({
-    commands: [createAddCommand(packages)],
+    commands: [createAddCommand(packages, monoRepo)],
     description: "",
     name: "",
     version: "1.0.0",
@@ -59,9 +60,20 @@ describe("add", () => {
     restoreConsole();
   });
 
+  it("should not do anything if not given a mono repo", async () => {
+    const cliWithNoPackages = createCli({
+      commands: [createAddCommand([], null)],
+      description: "",
+      name: "",
+      version: "1.0.0",
+    });
+
+    await cliWithNoPackages.start(buildArgv("add @enzsft/npm-fixture"));
+  });
+
   it("should not do anything if not given any packages", async () => {
     const cliWithNoPackages = createCli({
-      commands: [createAddCommand([])],
+      commands: [createAddCommand([], monoRepo)],
       description: "",
       name: "",
       version: "1.0.0",
@@ -317,7 +329,12 @@ describe("add", () => {
     const { dependencies } = await readJson(resolve(a.__dir, "package.json"));
     expect(dependencies["@add/b-package-other"]).toBe("^1.0.0");
 
-    // node_modules won't be populated until NPM packages have been installed
+    // Yarn doesn't finish updating filesystem until after it has exited 🤔
+    await wait(500);
+
+    // node_modules should be populated
+    expect(checkNodeModuleExists("@add/b-package")).toBe(true);
+    expect(checkNodeModuleExists("@add/b-package-other")).toBe(true);
   });
 
   it("should install dev dependencies when dev dependencies already exist", async () => {
@@ -335,7 +352,12 @@ describe("add", () => {
     );
     expect(devDependencies["@add/b-package-other"]).toBe("^1.0.0");
 
-    // node_modules won't be populated until NPM packages have been installed
+    // Yarn doesn't finish updating filesystem until after it has exited 🤔
+    await wait(500);
+
+    // node_modules should be populated
+    expect(checkNodeModuleExists("@add/b-package")).toBe(true);
+    expect(checkNodeModuleExists("@add/b-package-other")).toBe(true);
   });
 
   it("should reject with eit code if Yarn install fails", async () => {

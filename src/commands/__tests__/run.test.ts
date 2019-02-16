@@ -10,7 +10,7 @@ import { createRunCommand } from "../run";
 describe("run", () => {
   const monoRepoDir = resolve(process.cwd(), "__mono_repo_fixture__run__");
   const monoRepo = {
-    __dir: "",
+    __dir: monoRepoDir,
     license: "MIT",
     name: "run",
     private: true,
@@ -66,7 +66,7 @@ describe("run", () => {
     },
   ];
   const cli = createCli({
-    commands: [createRunCommand(packages)],
+    commands: [createRunCommand(packages, monoRepo)],
     description: "",
     name: "",
     version: "1.0.0",
@@ -83,9 +83,20 @@ describe("run", () => {
     restoreConsole();
   });
 
+  it("should not do anything if not given a mono repo", async () => {
+    const cliWithNoPackages = createCli({
+      commands: [createRunCommand([], null)],
+      description: "",
+      name: "",
+      version: "1.0.0",
+    });
+
+    await cliWithNoPackages.start(buildArgv("run touch"));
+  });
+
   it("should not do anything if not given any packages", async () => {
     const cliWithNoPackages = createCli({
-      commands: [createRunCommand([])],
+      commands: [createRunCommand([], monoRepo)],
       description: "",
       name: "",
       version: "1.0.0",
