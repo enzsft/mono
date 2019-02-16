@@ -33,7 +33,7 @@ export const createRemoveCommand = (
       return;
     }
 
-    // Log out all the packages to be installed and in what packages
+    // Log out all the packages to be removed and from what packages
     logger.log(
       `Removing ${chalk.greenBright(
         removePackageNames.join(", "),
