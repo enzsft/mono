@@ -2,6 +2,7 @@ import { ICommand } from "@enzsft/cli";
 import chalk from "chalk";
 import { exec } from "child_process";
 import { readJson, writeJson } from "fs-extra";
+import { EOL } from "os";
 import { resolve } from "path";
 import { createConsoleLogger } from "../logger";
 import { includeOption } from "../options/include";
@@ -35,11 +36,9 @@ export const createRemoveCommand = (
 
     // Log out all the packages to be removed and from what packages
     logger.log(
-      `Removing ${chalk.greenBright(
-        removePackageNames.join(", "),
-      )} in the following packages:[${targetPackages
-        .map(p => chalk.blueBright(p.name))
-        .join(`, `)}]`,
+      `Removing from the following packages:${EOL}${chalk.blueBright(
+        targetPackages.map(p => p.name).join(EOL),
+      )}`,
     );
 
     // Remove the dependency from all target package.json files if they exist

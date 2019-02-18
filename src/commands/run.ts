@@ -1,6 +1,7 @@
 import { ICommand } from "@enzsft/cli";
 import chalk from "chalk";
 import { exec } from "child_process";
+import { EOL } from "os";
 import { applyRandomColor } from "../colors";
 import { createConsoleLogger } from "../logger";
 import { includeOption } from "../options/include";
@@ -43,9 +44,9 @@ export const createRunCommand = (
       logger.log(
         `Running script ${chalk.greenBright(
           script,
-        )} in the following packages: [${targetPackages
-          .map(p => chalk.blueBright(p.name))
-          .join(`,  `)}]`,
+        )} in the following packages:${EOL}${chalk.blueBright(
+          targetPackages.map(p => p.name).join(EOL),
+        )}]`,
       );
       // Build executor functions
       const executors = targetPackages

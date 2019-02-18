@@ -2,12 +2,12 @@ import { ICommand } from "@enzsft/cli";
 import chalk from "chalk";
 import { exec } from "child_process";
 import { readJson, writeJson } from "fs-extra";
+import { EOL } from "os";
 import { resolve as resolvePath } from "path";
-import { applyRandomColor } from "../colors";
 import { createConsoleLogger } from "../logger";
 import { devOption } from "../options/dev";
 import { includeOption } from "../options/include";
-import { extractPackageName, filterPackages } from "../packages";
+import { filterPackages, getPackageName, getPackageVersion } from "../packages";
 import { IAddCommandOptions, IMonoRepo, IPackage } from "../types";
 
 /**
@@ -42,135 +42,113 @@ export const createAddCommand = (
     }
 
     // Determine install package names that exist in the local mono repo
-    // These will need to be installed differently to packages from NPM
     const localInstallPackageNames = installPackageNames.filter(n =>
-      packages.find(p => p.name === extractPackageName(n)),
+      packages.find(p => p.name === getPackageName(n)),
     );
 
     // Packages not deemed to be local to the mono repo are NPM packages
-    const npmInstallPackageNames = installPackageNames.filter(
-      n => !localInstallPackageNames.includes(extractPackageName(n)),
+    const npmPackages: IPackage[] = await Promise.all(
+      installPackageNames
+        .filter(n => !localInstallPackageNames.includes(getPackageName(n)))
+        .map(async n => {
+          const versionSpec = await getPackageVersion(n, packages);
+          return {
+            __dir: "", // don't care about this for install
+            license: "", // or this
+            name: getPackageName(n),
+            version: `${versionSpec.modifier}${versionSpec.version}`,
+          };
+        }),
     );
 
     // Filter out local mono repo packages
-    const localPackages = packages.filter(p =>
-      localInstallPackageNames.find(n => n.startsWith(p.name)),
+    const localPackages: IPackage[] = await Promise.all(
+      installPackageNames
+        .filter(n => localInstallPackageNames.includes(getPackageName(n)))
+        .map(async n => {
+          const versionSpec = await getPackageVersion(n, packages);
+          return {
+            __dir: "", // don't care about this for install
+            license: "", // or this
+            name: getPackageName(n),
+            version: `${versionSpec.modifier}${versionSpec.version}`,
+          };
+        }),
     );
 
-    // Log out all the packages to be installed and in what packages
+    // Final list of packages to install
+    const installPackages = [...npmPackages, ...localPackages];
+
+    // Log out all the target packages
     logger.log(
-      `Installing ${chalk.greenBright(
-        installPackageNames.join(", "),
-      )} in the following packages:[${targetPackages
-        .map(p => chalk.blueBright(p.name))
-        .join(`, `)}]`,
+      `Installing into the following packages:${EOL}${chalk.blueBright(
+        targetPackages.map(p => p.name).join(EOL),
+      )}`,
     );
 
-    // Package by package install requested dependencies
-    for (const pkg of targetPackages) {
-      /**
-       * Install packages from the local mono repo
-       */
+    // Package.json key to write dependnecies into
+    const dependencyKey = options.dev ? "devDependencies" : "dependencies";
 
+    // Write the dependencies into all package.jsons
+    logger.log("Writing dependencies to packages... ✏️");
+
+    for (const pkg of targetPackages) {
       // Need to filter out packages that match the target package.
       // We do not want to try and install the package in itself
-      const filteredLocalPackages = localPackages.filter(
-        p => p.name !== pkg.name,
-      );
+      const filteredPackages = installPackages.filter(p => p.name !== pkg.name);
 
       // Only bother doing this install if there are packages
-      if (filteredLocalPackages.length > 0) {
-        logger.log("Linking local packages... 🚚");
-
-        // Write local mono repo packages to the package.json first
-        // The following yarn installation will link these
+      if (filteredPackages.length > 0) {
+        // Write packages to the package.json
         const packageJsonFilePath = resolvePath(pkg.__dir, "package.json");
         const packageJson = await readJson(packageJsonFilePath);
-        const dependencyKey = options.dev ? "devDependencies" : "dependencies";
 
         // Need to ensure key exists to add to it
         if (packageJson[dependencyKey] === undefined) {
           packageJson[dependencyKey] = {};
         }
 
-        // Now all add packages to the key
-        for (const localPackage of filteredLocalPackages) {
-          packageJson[dependencyKey][localPackage.name] = `^${
-            localPackage.version
+        // Now add packages to the key
+        for (const installPackage of filteredPackages) {
+          packageJson[dependencyKey][installPackage.name] = `${
+            installPackage.version
           }`;
         }
 
+        // Save the file
         await writeJson(packageJsonFilePath, packageJson, { spaces: 2 });
-
-        // Running a Yarn install will now link all these packages
-        // We don't simply run `yarn workspace add abc` for each package because it is slower
-        // This way we only make yarn work once
-        await exec("yarn", { cwd: monoRepo.__dir });
-        logger.log("All linked ✌️");
-      }
-
-      /**
-       * Install packages from NPM
-       */
-
-      // Need to filter out packages that match the target package.
-      // We do not want to try and install the package in itself
-      const filteredNpmInstallPackageNames = npmInstallPackageNames.filter(
-        n => extractPackageName(n) !== pkg.name,
-      );
-
-      // Only bother doing this install if there are packages
-      if (filteredNpmInstallPackageNames.length > 0) {
-        // Create logger prefixed for the executing package
-        const packageLogger = createConsoleLogger({
-          prefix: applyRandomColor(`[${pkg.name}]`),
-        });
-
-        // If they are dev dependencies then append --dev
-        const devCommandPart = options.dev ? "--dev" : "";
-
-        // Add the package via Yarn in the package directory
-        packageLogger.log("Installing packages from NPM... 🚚");
-        const runner = exec(
-          `yarn add ${filteredNpmInstallPackageNames.join(
-            " ",
-          )} ${devCommandPart}`,
-          {
-            cwd: pkg.__dir,
-          },
-        );
-
-        // Log stdout as normal logs
-        runner.stdout.on("data", data => {
-          packageLogger.log(data.toString());
-        });
-
-        // Log stderr as errors
-        runner.stderr.on("data", data => {
-          packageLogger.error(data.toString());
-        });
-
-        await new Promise(
-          (resolve, reject): void => {
-            runner.on("exit", code => {
-              // Reject if the code is non zero
-              if (code !== 0) {
-                logger.error(
-                  `Install failed in ${chalk.blueBright(
-                    pkg.name,
-                  )}. Yarn exited with error code ${code} 🤕`,
-                );
-                return reject({ code });
-              }
-
-              // Resolve on successful code 0
-              logger.log(`Install in ${chalk.blueBright(pkg.name)} is done 🎉`);
-              return resolve();
-            });
-          },
-        );
       }
     }
+
+    // Running a Yarn install will install all packages from NPM and link local packages.
+    // We don't simply run `yarn workspace add abc` for each package because it is slower
+    // This way we only make yarn work once.
+    const runner = exec("yarn", { cwd: monoRepo.__dir });
+
+    // Log stdout as normal logs
+    runner.stdout.on("data", data => {
+      logger.log(data.toString());
+    });
+
+    // Log stderr as errors
+    runner.stderr.on("data", data => {
+      logger.error(data.toString());
+    });
+
+    await new Promise(
+      (resolve, reject): void => {
+        runner.on("exit", code => {
+          // Reject if the code is non zero
+          if (code !== 0) {
+            return reject({ code });
+          }
+
+          // Resolve on successful code 0
+          logger.log(`Install is done ✌️`);
+          return resolve();
+        });
+      },
+    );
   },
   name: "add",
   options: [devOption, includeOption],
