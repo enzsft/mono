@@ -55,6 +55,20 @@ export interface IPackage {
 }
 
 /**
+ * NPM package version spec
+ */
+export interface IVersionSpec {
+  /**
+   * Version such as 1.0.0
+   */
+  version: string;
+  /**
+   * Version modifier such as ^
+   */
+  modifier: string;
+}
+
+/**
  * Run command options
  */
 export interface IRunCommandOptions {

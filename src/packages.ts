@@ -1,8 +1,9 @@
+import { exec } from "child_process";
 import { readJson } from "fs-extra";
 import glob from "glob-promise";
 import { resolve } from "path";
 import { getMonoRepo } from "./mono-repo";
-import { IMonoRepo, IPackage } from "./types";
+import { IMonoRepo, IPackage, IVersionSpec } from "./types";
 
 /**
  * Get all packages in a mono repo
@@ -87,12 +88,12 @@ export const filterPackages = (
  * For example "react@16.8.0" will return "react"
  * @param nameWithMaybeVersion
  */
-export const extractPackageName = (nameWithMaybeVersion: string): string => {
+export const getPackageName = (nameWithMaybeVersion: string): string => {
   const isScoped = nameWithMaybeVersion.startsWith("@");
   const strippedScopeNameWithMaybeVersion = isScoped
     ? nameWithMaybeVersion.substring(1)
     : nameWithMaybeVersion;
-  const name = strippedScopeNameWithMaybeVersion.split("@")[0];
+  const [name] = strippedScopeNameWithMaybeVersion.split("@");
 
   // Need to restore scope prefix if it was stripped
   return isScoped ? `@${name}` : name;
@@ -101,16 +102,59 @@ export const extractPackageName = (nameWithMaybeVersion: string): string => {
 /**
  * Extract the version from the install package string.
  * For example "react@16.8.0" will return "16.8.0".
- * Returns null if no version
+ * If no version is present then the local packages and NPM
+ * will be searched in that order.
  * @param nameWithMaybeVersion
  */
-export const extractPackageVersion = (
+export const getPackageVersion = async (
   nameWithMaybeVersion: string,
-): string | null => {
+  localPackages: IPackage[],
+): Promise<IVersionSpec> => {
   const isScoped = nameWithMaybeVersion.startsWith("@");
   const strippedScopeNameWithMaybeVersion = isScoped
     ? nameWithMaybeVersion.substring(1)
     : nameWithMaybeVersion;
-  const parts = strippedScopeNameWithMaybeVersion.split("@");
-  return parts.length > 1 ? parts[1] : null;
+  const [, version] = strippedScopeNameWithMaybeVersion.split("@");
+
+  // No version provided so determine it
+  if (!version) {
+    const packageName = getPackageName(nameWithMaybeVersion);
+
+    // First check the local packages and use it if it exists
+    const localPackage = localPackages.find(p => p.name === packageName);
+    if (localPackage) {
+      return Promise.resolve({
+        modifier: "^",
+        version: localPackage.version,
+      });
+    }
+
+    // Now try and obtain the version from NPM
+    const runner = exec(`npm show ${packageName} version`);
+
+    return new Promise(
+      (
+        res: (value?: IVersionSpec) => void,
+        rej: (error: Error) => void,
+      ): void => {
+        runner.stdout.on("data", (out: string) => {
+          res({ modifier: "^", version: out.trim() });
+        });
+
+        runner.on("exit", code => {
+          if (code !== 0) {
+            rej(new Error(`NPM package '${packageName}' does not exist`));
+          }
+        });
+      },
+    );
+  }
+
+  // Otherwise return the provided version, provide default modifier if it doesn't exist
+  const match = /\d/.exec(version);
+  const hasNoModifier = match && match.index === 0;
+  return {
+    modifier: hasNoModifier ? "" : version.substring(0, 1),
+    version: hasNoModifier ? version : version.substring(1),
+  };
 };

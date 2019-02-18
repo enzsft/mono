@@ -364,11 +364,28 @@ describe("add", () => {
     expect(checkNodeModuleExists("@add/b-package-other")).toBe(true);
   });
 
-  it("should reject with eit code if Yarn install fails", async () => {
+  it("should reject with exit code if the package does not exist", async () => {
     try {
       expect.assertions(1);
       await cli.start(
         buildArgv("add hope-this-package-never-exists -i @add/a-package"),
+      );
+    } catch (error) {
+      expect(error).toEqual(
+        new Error(
+          "NPM package 'hope-this-package-never-exists' does not exist",
+        ),
+      );
+    }
+  });
+
+  it("should reject with exit code if Yarn install fails", async () => {
+    try {
+      expect.assertions(1);
+      await cli.start(
+        buildArgv(
+          "add hope-this-package-never-exists@bad-version -i @add/a-package",
+        ),
       );
     } catch (error) {
       expect(typeof error.code).toBe("number");
