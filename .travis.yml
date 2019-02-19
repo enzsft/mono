@@ -13,4 +13,5 @@ install:
 script:
   - yarn build
   - yarn lint
-  - yarn test --coverage --coverageReporters=text-lcov | coveralls
+  - yarn test --coverage
+  - yarn codecov

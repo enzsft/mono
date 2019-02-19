@@ -5,8 +5,8 @@
   <a href='https://travis-ci.org/enzsft/mono'>
     <img src="https://travis-ci.org/enzsft/mono.svg?branch=master" alt="Build Status" />
   </a>
-  <a href='https://coveralls.io/github/enzsft/mono?branch=master'>
-    <img src='https://coveralls.io/repos/github/enzsft/mono/badge.svg?branch=master' alt='Coverage Status' />
+  <a href="https://codecov.io/github/enzsft/mono?branch=master">
+    <img src="https://codecov.io/github/enzsft/mono/coverage.svg?branch=master" alt="Coverage via Codecov" />
   </a>
   <a href="https://www.npmjs.com/package/@enzsft/mono">
     <img src="https://badge.fury.io/js/%40enzsft%2Fmono.svg" alt="npm version">
