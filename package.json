@@ -1,6 +1,6 @@
 {
   "name": "@enzsft/mono",
-  "version": "1.0.0-alpha.26",
+  "version": "1.0.0-alpha.28",
   "description": "Manage JavaScript mono repos with ease. 😲",
   "keywords": [
     "mono",
@@ -15,7 +15,10 @@
     "url": "https://github.com/enzsft/mono"
   },
   "author": "Enzyme Software",
-  "bin": "./index.js",
+  "bin": {
+    "mono": "./index.js",
+    "enz-mono": "./index.js"
+  },
   "scripts": {
     "build": "./scripts/build.sh",
     "lint": "tslint 'src/**/*.ts' --project ./tsconfig.json",

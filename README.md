@@ -38,6 +38,10 @@ yarn global add @enzsft/mono
 ```bash
 # Add react to all packages
 mono add react react-dom
+
+# Already have a tool installed called 'mono'?
+# Not a problem, just use the alternative tool name!
+enz-mono add react react-dom
 ```
 
 ## Commands
