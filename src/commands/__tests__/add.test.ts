@@ -388,7 +388,7 @@ describe("add", () => {
         ),
       );
     } catch (error) {
-      expect(typeof error.code).toBe("number");
+      expect(typeof error).toBe("number");
     }
   });
 });

@@ -4,7 +4,7 @@ import { resolve } from "path";
 import { exec } from "../exec";
 
 describe("exec", () => {
-  const fixtureDir = resolve(process.cwd(), "__temp_fixture__");
+  const fixtureDir = resolve(process.cwd(), "__temp_fixture__exec");
   let restoreConsole: RestoreConsole;
 
   beforeEach(() => {
@@ -18,18 +18,28 @@ describe("exec", () => {
   });
 
   it("should exec the command", async () => {
-    await exec("touch 1.txt", { cwd: fixtureDir });
+    await exec("touch", ["1.txt"], { cwd: fixtureDir });
 
     expect(existsSync(resolve(fixtureDir, "1.txt"))).toBe(true);
   });
 
-  it("should reject with the exit code if the command fails", async () => {
+  it("should reject if the command does not exist", async () => {
     expect.assertions(1);
 
     try {
-      await exec("touch -some-illegal-option", { cwd: fixtureDir });
+      await exec("touch-does-not-exist", [], { cwd: fixtureDir });
     } catch (error) {
-      expect(typeof error.code).toBe("number");
+      expect(error).not.toBeNull();
+    }
+  });
+
+  it("should if the command fails", async () => {
+    expect.assertions(1);
+
+    try {
+      await exec("touch -this-surely-does=not-exist", [], { cwd: fixtureDir });
+    } catch (code) {
+      expect(code).not.toBeNull();
     }
   });
 });

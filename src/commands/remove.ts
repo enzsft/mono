@@ -1,9 +1,9 @@
 import { ICommand } from "@enzsft/cli";
 import chalk from "chalk";
-import { exec } from "child_process";
 import { readJson, writeJson } from "fs-extra";
 import { EOL } from "os";
 import { resolve } from "path";
+import { exec } from "../exec";
 import { createConsoleLogger } from "../logger";
 import { includeOption } from "../options/include";
 import { filterPackages } from "../packages";
@@ -36,7 +36,7 @@ export const createRemoveCommand = (
 
     // Log out all the packages to be removed and from what packages
     logger.log(
-      `${chalk.greenBright("Target packages:")}${EOL}${chalk.blueBright(
+      `${chalk.greenBright("Target packages:")}${EOL}${chalk.cyanBright(
         targetPackages.map(p => p.name).join(EOL),
       )}`,
     );
@@ -60,7 +60,7 @@ export const createRemoveCommand = (
     }
     // Finally run Yarn so it can clean up any installed packages
     // This way we only make yarn work once
-    await exec("yarn", { cwd: monoRepo.__dir });
+    await exec("yarn", [], { cwd: monoRepo.__dir });
   },
   name: "remove",
   options: [includeOption],

@@ -40,13 +40,11 @@ export const createRunCommand = (
         logger.warn("No packages found 😰");
         return;
       }
-      // Log out all packages that the NPM script wil lbe run in
+      // Log out all packages that the NPM script will be run in
       logger.log(
-        `Running script ${chalk.greenBright(
-          script,
-        )} in the following packages:${EOL}${chalk.blueBright(
+        `${chalk.greenBright("Target packages:")}${EOL}${chalk.cyanBright(
           targetPackages.map(p => p.name).join(EOL),
-        )}]`,
+        )}`,
       );
       // Build executor functions
       const executors = targetPackages
@@ -57,35 +55,41 @@ export const createRunCommand = (
           const runner = exec(`yarn run ${script} ${forwardedArgs.join(" ")}`, {
             cwd: p.__dir,
           });
+
           // Create logger prefixed for the executing package
           const packageLoger = createConsoleLogger({
             prefix: applyRandomColor(`[${p.name}]: `),
           });
+
           // Log stdout as normal logs
           runner.stdout.on("data", data => {
             packageLoger.log(data.toString());
           });
+
           // Log stderr as errors
           runner.stderr.on("data", data => {
             packageLoger.error(data.toString());
           });
+
           return new Promise(
             (resolve, reject): void => {
-              runner.on("exit", code => {
+              runner.on("close", code => {
                 // Reject if the code is non zero
                 if (code !== 0) {
                   logger.error(
-                    `Script ${chalk.greenBright(script)} in ${chalk.blueBright(
+                    `Script ${chalk.greenBright(
+                      script,
+                    )} in package ${chalk.cyanBright(
                       p.name,
-                    )} exited with error code ${code} 🤕`,
+                    )} exited with code ${code} 🤕`,
                   );
                   return reject({ code });
                 }
                 // Resolve on successful code 0
                 logger.log(
-                  `Script ${chalk.greenBright(script)} in ${chalk.blueBright(
-                    p.name,
-                  )} is done 🎉`,
+                  `Script ${chalk.greenBright(
+                    script,
+                  )} in package ${chalk.cyanBright(p.name)} is done 🎉`,
                 );
                 return resolve();
               });
@@ -96,6 +100,8 @@ export const createRunCommand = (
       for (const executor of executors) {
         await executor();
       }
+
+      logger.log("All done ✌️");
     },
     name: "run",
     options: [includeOption],

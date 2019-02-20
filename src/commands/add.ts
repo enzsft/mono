@@ -81,7 +81,7 @@ export const createAddCommand = (
 
     // Log out all the target packages
     logger.log(
-      `${chalk.greenBright("Target packages:")}${EOL}${chalk.blueBright(
+      `${chalk.greenBright("Target packages:")}${EOL}${chalk.cyanBright(
         targetPackages.map(p => p.name).join(EOL),
       )}`,
     );
@@ -121,7 +121,7 @@ export const createAddCommand = (
     // Running a Yarn install will install all packages from NPM and link local packages.
     // We don't simply run `yarn workspace add abc` for each package because it is slower
     // This way we only make yarn work once.
-    await exec("yarn", { cwd: monoRepo.__dir });
+    await exec("yarn", [], { cwd: monoRepo.__dir });
   },
   name: "add",
   options: [devOption, includeOption],

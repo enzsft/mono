@@ -1,4 +1,4 @@
-import { exec as doExec, ExecOptions } from "child_process";
+import { spawn, SpawnOptions } from "child_process";
 import { createConsoleLogger } from "./logger";
 
 /**
@@ -7,33 +7,29 @@ import { createConsoleLogger } from "./logger";
  * @param command
  * @param options
  */
-export const exec = (command: string, options: ExecOptions): Promise<void> => {
-  const execLogger = createConsoleLogger({ prefix: "" });
-
-  const runner = doExec(command, options);
-
-  // Log stdout as normal logs
-  runner.stdout.on("data", data => {
-    execLogger.log(data.toString());
-  });
-
-  // Log stderr as errors
-  runner.stderr.on("data", data => {
-    execLogger.error(data.toString());
-  });
+export const exec = (
+  command: string,
+  args: ReadonlyArray<string>,
+  options: SpawnOptions,
+): Promise<number> => {
+  const runner = spawn(command, args, { ...options, stdio: "inherit" });
 
   return new Promise(
     (resolve, reject): void => {
-      runner.on("exit", code => {
-        // Reject if the code is non zero
+      // Reject if error
+      runner.on("error", err => {
+        reject(err);
+      });
+
+      // Resolve if successful
+      runner.on("close", code => {
         if (code !== 0) {
-          return reject({ code });
+          reject(code);
         }
 
-        // Resolve on successful code 0
         const logger = createConsoleLogger();
         logger.log(`All done ✌️`);
-        return resolve();
+        resolve(code);
       });
     },
   );
