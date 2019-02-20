@@ -30,13 +30,9 @@ describe("createConsoleLogger", () => {
     expect(globalConsole.warn).toHaveBeenCalledTimes(1);
     expect(globalConsole.error).toHaveBeenCalledTimes(1);
 
-    expect(globalConsole.log.mock.calls[0][0]).toBe(`${defaultPrefix}: ${log}`);
-    expect(globalConsole.warn.mock.calls[0][0]).toBe(
-      `${defaultPrefix}: ${log}`,
-    );
-    expect(globalConsole.error.mock.calls[0][0]).toBe(
-      `${defaultPrefix}: ${log}`,
-    );
+    expect(globalConsole.log.mock.calls[0][0]).toBe(`${defaultPrefix}${log}`);
+    expect(globalConsole.warn.mock.calls[0][0]).toBe(`${defaultPrefix}${log}`);
+    expect(globalConsole.error.mock.calls[0][0]).toBe(`${defaultPrefix}${log}`);
   });
 
   it("should log to the console with the given prefix and log level", () => {
@@ -52,9 +48,9 @@ describe("createConsoleLogger", () => {
     expect(globalConsole.warn).toHaveBeenCalledTimes(1);
     expect(globalConsole.error).toHaveBeenCalledTimes(1);
 
-    expect(globalConsole.log.mock.calls[0][0]).toBe(`${prefix}: ${message}`);
-    expect(globalConsole.warn.mock.calls[0][0]).toBe(`${prefix}: ${message}`);
-    expect(globalConsole.error.mock.calls[0][0]).toBe(`${prefix}: ${message}`);
+    expect(globalConsole.log.mock.calls[0][0]).toBe(`${prefix}${message}`);
+    expect(globalConsole.warn.mock.calls[0][0]).toBe(`${prefix}${message}`);
+    expect(globalConsole.error.mock.calls[0][0]).toBe(`${prefix}${message}`);
   });
 
   it("should format multi line logs", () => {
@@ -75,14 +71,14 @@ describe("createConsoleLogger", () => {
     expect(globalConsole.error).toHaveBeenCalledTimes(1);
 
     // Should maintain leading whitespace for indents, but strip trailing whilespace
-    expect(globalConsole.log.mock.calls[0][0]).toBe(`${defaultPrefix}: line1
-${defaultPrefix}:   line2
-${defaultPrefix}:     line3`);
-    expect(globalConsole.warn.mock.calls[0][0]).toBe(`${defaultPrefix}: line1
-${defaultPrefix}:   line2
-${defaultPrefix}:     line3`);
-    expect(globalConsole.error.mock.calls[0][0]).toBe(`${defaultPrefix}: line1
-${defaultPrefix}:   line2
-${defaultPrefix}:     line3`);
+    expect(globalConsole.log.mock.calls[0][0]).toBe(`${defaultPrefix}line1
+${defaultPrefix}  line2
+${defaultPrefix}    line3`);
+    expect(globalConsole.warn.mock.calls[0][0]).toBe(`${defaultPrefix}line1
+${defaultPrefix}  line2
+${defaultPrefix}    line3`);
+    expect(globalConsole.error.mock.calls[0][0]).toBe(`${defaultPrefix}line1
+${defaultPrefix}  line2
+${defaultPrefix}    line3`);
   });
 });

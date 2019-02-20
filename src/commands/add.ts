@@ -1,9 +1,9 @@
 import { ICommand } from "@enzsft/cli";
 import chalk from "chalk";
-import { exec } from "child_process";
 import { readJson, writeJson } from "fs-extra";
 import { EOL } from "os";
 import { resolve as resolvePath } from "path";
+import { exec } from "../exec";
 import { createConsoleLogger } from "../logger";
 import { devOption } from "../options/dev";
 import { includeOption } from "../options/include";
@@ -81,7 +81,7 @@ export const createAddCommand = (
 
     // Log out all the target packages
     logger.log(
-      `Installing into the following packages:${EOL}${chalk.blueBright(
+      `${chalk.greenBright("Target packages:")}${EOL}${chalk.blueBright(
         targetPackages.map(p => p.name).join(EOL),
       )}`,
     );
@@ -90,8 +90,6 @@ export const createAddCommand = (
     const dependencyKey = options.dev ? "devDependencies" : "dependencies";
 
     // Write the dependencies into all package.jsons
-    logger.log("Writing dependencies to packages... ✏️");
-
     for (const pkg of targetPackages) {
       // Need to filter out packages that match the target package.
       // We do not want to try and install the package in itself
@@ -123,32 +121,7 @@ export const createAddCommand = (
     // Running a Yarn install will install all packages from NPM and link local packages.
     // We don't simply run `yarn workspace add abc` for each package because it is slower
     // This way we only make yarn work once.
-    const runner = exec("yarn", { cwd: monoRepo.__dir });
-
-    // Log stdout as normal logs
-    runner.stdout.on("data", data => {
-      logger.log(data.toString());
-    });
-
-    // Log stderr as errors
-    runner.stderr.on("data", data => {
-      logger.error(data.toString());
-    });
-
-    await new Promise(
-      (resolve, reject): void => {
-        runner.on("exit", code => {
-          // Reject if the code is non zero
-          if (code !== 0) {
-            return reject({ code });
-          }
-
-          // Resolve on successful code 0
-          logger.log(`Install is done ✌️`);
-          return resolve();
-        });
-      },
-    );
+    await exec("yarn", { cwd: monoRepo.__dir });
   },
   name: "add",
   options: [devOption, includeOption],

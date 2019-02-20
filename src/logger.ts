@@ -6,7 +6,7 @@ import { ILogger, ILoggerOptions } from "./types";
 /**
  * Default prefix used when none is provided
  */
-export const defaultPrefix = chalk.magenta("[mono]");
+export const defaultPrefix = chalk.magenta("mono: ");
 
 /**
  * Strip leading and trailing whitespace from each line of
@@ -22,7 +22,7 @@ const format = (prefix: string, message: string): string =>
       (line: string, index: number, array: string[]) =>
         !(index === array.length - 1 && line.trim().length === 0),
     )
-    .map((line: string): string => `${prefix}: ${line.trimRight()}`)
+    .map((line: string): string => `${prefix}${line.trimRight()}`)
     .join(EOL);
 
 /**

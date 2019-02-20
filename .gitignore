@@ -69,3 +69,4 @@ package-lock.json
 
 # text fixtures
 __mono_repo_fixture__*
+__temp_fixture__*

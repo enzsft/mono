@@ -36,7 +36,7 @@ export const createRemoveCommand = (
 
     // Log out all the packages to be removed and from what packages
     logger.log(
-      `Removing from the following packages:${EOL}${chalk.blueBright(
+      `${chalk.greenBright("Target packages:")}${EOL}${chalk.blueBright(
         targetPackages.map(p => p.name).join(EOL),
       )}`,
     );
@@ -61,7 +61,6 @@ export const createRemoveCommand = (
     // Finally run Yarn so it can clean up any installed packages
     // This way we only make yarn work once
     await exec("yarn", { cwd: monoRepo.__dir });
-    logger.log("All removed ✌️");
   },
   name: "remove",
   options: [includeOption],

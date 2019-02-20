@@ -59,7 +59,7 @@ export const createRunCommand = (
           });
           // Create logger prefixed for the executing package
           const packageLoger = createConsoleLogger({
-            prefix: applyRandomColor(`[${p.name}]`),
+            prefix: applyRandomColor(`[${p.name}]: `),
           });
           // Log stdout as normal logs
           runner.stdout.on("data", data => {
