@@ -15,34 +15,40 @@ const monoRepo = {
   name: "packages",
   private: true,
   version: "1.0.0",
-  workspaces: ["packages/*"],
+  workspaces: ["packages/**/*"],
 };
 const packages = [
   {
     __dir: resolve(monoRepoDir, "packages/a"),
     license: "MIT",
     name: "@packages/a",
-    scripts: { test: "touch test.txt" },
     version: "1.0.0",
   },
   {
     __dir: resolve(monoRepoDir, "packages/b"),
     license: "MIT",
     name: "@packages/b",
-    scripts: { test: "touch test.txt" },
     version: "1.0.0",
   },
   {
     __dir: resolve(monoRepoDir, "packages/c"),
     license: "MIT",
     name: "@packages/c",
-    scripts: { test: "touch test.txt" },
     version: "1.0.0",
   },
 ];
 
+// This should not be found as a package because it is in node_modules under @packages/c
+const nodeModulePackage = {
+  __dir: resolve(monoRepoDir, "packages/c/node_modules/node-module-package"),
+  license: "MIT",
+  name: "@packages/node-module-package",
+  version: "1.0.0",
+};
+
 beforeEach(async () => {
-  await createMonoRepo(monoRepoDir, monoRepo, packages);
+  // Place a package in node_modules under a package.
+  await createMonoRepo(monoRepoDir, monoRepo, [...packages, nodeModulePackage]);
 });
 
 afterEach(async () => {

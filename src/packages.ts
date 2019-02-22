@@ -29,10 +29,9 @@ export const getPackages = async (currentDir: string): Promise<IPackage[]> => {
   const globResults = await Promise.all(packageGlobs.map(g => glob(g)));
 
   // Need to flatten glob results into a simple array of filepaths
-  const workspaceFilePaths = globResults.reduce(
-    (acc, next) => [...acc, ...next],
-    [],
-  );
+  const workspaceFilePaths = globResults
+    .reduce((acc, next) => [...acc, ...next], [])
+    .filter(x => !x.includes("node_modules"));
 
   // Load all file contents into a JS object, it's JSON so serializes properly
   const packages = await Promise.all(
