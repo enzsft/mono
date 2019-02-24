@@ -6,5 +6,5 @@
     "strict": true
   },
   "exclude": [".build", ".coverage", "node_modules", "**/*.test.ts"],
-  "include": ["index.ts", "test-utils.ts", "src/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }
