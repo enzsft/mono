@@ -1,6 +1,6 @@
 {
   "name": "@enzsft/mono",
-  "version": "1.0.0-alpha.36",
+  "version": "1.0.0",
   "description": "Manage JavaScript mono repos with ease. 😲",
   "keywords": [
     "mono",
