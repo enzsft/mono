@@ -1,4 +1,4 @@
-import { ICommand } from "@enzsft/cli";
+import { Command } from "@enzsft/cli";
 import chalk from "chalk";
 import { readJson, writeJson } from "fs-extra";
 import { EOL } from "os";
@@ -12,7 +12,7 @@ import { IMonoRepo, IPackage, IRemoveCommandOptions } from "../types";
 export const createRemoveCommand = (
   packages: IPackage[],
   monoRepo: IMonoRepo | null,
-): ICommand<IRemoveCommandOptions> => ({
+): Command<IRemoveCommandOptions> => ({
   description: "Remove dependencies from packages in your local mono repo.",
   handler: async (
     removePackageNames: string[],

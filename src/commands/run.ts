@@ -1,4 +1,4 @@
-import { ICommand } from "@enzsft/cli";
+import { Command } from "@enzsft/cli";
 import chalk from "chalk";
 import { exec } from "child_process";
 import { EOL } from "os";
@@ -16,7 +16,7 @@ import { IMonoRepo, IPackage, IRunCommandOptions } from "../types";
 export const createRunCommand = (
   packages: IPackage[],
   monoRepo: IMonoRepo | null,
-): ICommand<IRunCommandOptions> => {
+): Command<IRunCommandOptions> => {
   return {
     description: "Run NPM scripts",
     handler: async (

@@ -1,4 +1,4 @@
-import { ICommand } from "@enzsft/cli";
+import { Command } from "@enzsft/cli";
 import chalk from "chalk";
 import { readJson, writeJson } from "fs-extra";
 import { EOL } from "os";
@@ -19,7 +19,7 @@ import { IAddCommandOptions, IMonoRepo, IPackage } from "../types";
 export const createAddCommand = (
   packages: IPackage[],
   monoRepo: IMonoRepo | null,
-): ICommand<IAddCommandOptions> => ({
+): Command<IAddCommandOptions> => ({
   description: "Install dependencies from NPM or your local mono repo.",
   handler: async (
     installPackageNames: string[],
