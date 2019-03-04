@@ -1,18 +1,29 @@
 import { ensureDir, existsSync, readJson, remove, writeJson } from "fs-extra";
 import { resolve } from "path";
-import { IMonoRepo, IPackage } from "./types";
+import { MonoRepo, Package } from "./types";
+
+/**
+ * Delete a mono repo
+ *
+ * @param {string} monoRepoDir The root directory of the mono repo
+ * @returns {Promise} A promise
+ */
+export const deleteMonoRepo = async (monoRepoDir: string): Promise<void> => {
+  await remove(monoRepoDir);
+};
 
 /**
  * Create a mono repo
  *
- * @param monoRepoDir
- * @param monoRepo
- * @param packages
+ * @param {string} monoRepoDir The root directory of the mono repo
+ * @param {Object} monoRepo The mono repo descriptor object
+ * @param {Object[]} packages All packages in the mono repo
+ * @returns {Promise} A promise
  */
 export const createMonoRepo = async (
   monoRepoDir: string,
-  monoRepo: IMonoRepo,
-  packages: IPackage[],
+  monoRepo: MonoRepo,
+  packages: Package[],
 ): Promise<void> => {
   // Ensure one doesn't already exist
   await deleteMonoRepo(monoRepoDir);
@@ -42,22 +53,16 @@ export const createMonoRepo = async (
 };
 
 /**
- * Delete a mono repo
- *
- * @param monoRepoDir
- */
-export const deleteMonoRepo = async (monoRepoDir: string): Promise<void> => {
-  await remove(monoRepoDir);
-};
-
-/**
  * Get mono repo config.
  * Walks the file tree up until it finds a valid package.json
  * with mono repo config in it.
+ *
+ * @param {string} currentDir The current directory to search
+ * @returns {Promise} A promise that reolves with the mono repo descriptor object
  */
 export const getMonoRepo = async (
   currentDir: string,
-): Promise<IMonoRepo | null> => {
+): Promise<MonoRepo | null> => {
   const packageJsonExists = existsSync(resolve(currentDir, "package.json"));
 
   // If a package.json exists at this level then check if it is valid mono repo

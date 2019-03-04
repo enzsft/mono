@@ -4,8 +4,10 @@ import { createConsoleLogger } from "./logger";
 /**
  * Exec a command and stream stdout/stderr to the console.
  *
- * @param command
- * @param options
+ * @param {string} command Command to execute
+ * @param {string[]} args Arguments for executing command
+ * @param {Object} options Spawn options
+ * @returns {Promise<number>} Promise resolving with exit code
  */
 export const exec = (
   command: string,

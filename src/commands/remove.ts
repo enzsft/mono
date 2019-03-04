@@ -7,16 +7,24 @@ import { exec } from "../exec";
 import { createConsoleLogger } from "../logger";
 import { includeOption } from "../options/include";
 import { filterPackages } from "../packages";
-import { IMonoRepo, IPackage, IRemoveCommandOptions } from "../types";
+import { MonoRepo, Package, RemoveCommandOptions } from "../types";
 
+/**
+ * Create the remove command.
+ * This command is used to remove NPM packages to packages in the mono repo.
+ *
+ * @param {Object[]} packages All packages in the mono repo
+ * @param {Object} monoRepo The mono repo
+ * @returns {Object} The remove command
+ */
 export const createRemoveCommand = (
-  packages: IPackage[],
-  monoRepo: IMonoRepo | null,
-): Command<IRemoveCommandOptions> => ({
+  packages: Package[],
+  monoRepo: MonoRepo | null,
+): Command<RemoveCommandOptions> => ({
   description: "Remove dependencies from packages in your local mono repo.",
   handler: async (
     removePackageNames: string[],
-    options: IRemoveCommandOptions,
+    options: RemoveCommandOptions,
   ): Promise<void> => {
     const logger = createConsoleLogger();
 

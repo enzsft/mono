@@ -8,22 +8,25 @@ import { createConsoleLogger } from "../logger";
 import { devOption } from "../options/dev";
 import { includeOption } from "../options/include";
 import { filterPackages, getPackageName, getPackageVersion } from "../packages";
-import { IAddCommandOptions, IMonoRepo, IPackage } from "../types";
+import { AddCommandOptions, MonoRepo, Package } from "../types";
 
 /**
  * Create the add command.
  * This command is used to add NPM packages to packages in the mono repo.
  * If the package name matches one in the mono repo then it is locally linked.
- * @param packages
+ *
+ * @param {Object[]} packages All packages in the mono repo
+ * @param {Object} monoRepo The mono repo
+ * @returns {Object} The add command
  */
 export const createAddCommand = (
-  packages: IPackage[],
-  monoRepo: IMonoRepo | null,
-): Command<IAddCommandOptions> => ({
+  packages: Package[],
+  monoRepo: MonoRepo | null,
+): Command<AddCommandOptions> => ({
   description: "Install dependencies from NPM or your local mono repo.",
   handler: async (
     installPackageNames: string[],
-    options: IAddCommandOptions,
+    options: AddCommandOptions,
   ): Promise<void> => {
     const logger = createConsoleLogger();
 
@@ -47,7 +50,7 @@ export const createAddCommand = (
     );
 
     // Packages not deemed to be local to the mono repo are NPM packages
-    const npmPackages: IPackage[] = await Promise.all(
+    const npmPackages: Package[] = await Promise.all(
       installPackageNames
         .filter(n => !localInstallPackageNames.includes(getPackageName(n)))
         .map(async n => {
@@ -62,7 +65,7 @@ export const createAddCommand = (
     );
 
     // Filter out local mono repo packages
-    const localPackages: IPackage[] = await Promise.all(
+    const localPackages: Package[] = await Promise.all(
       installPackageNames
         .filter(n => localInstallPackageNames.includes(getPackageName(n)))
         .map(async n => {

@@ -1,7 +1,7 @@
 /**
  * A mono repo (important package.json info essentially)
  */
-export interface IMonoRepo {
+export interface MonoRepo {
   /**
    * The directory this mon repo config is located in. Meta data not found in the package.json
    */
@@ -31,7 +31,7 @@ export interface IMonoRepo {
 /**
  * A package (important package.json info essentially)
  */
-export interface IPackage {
+export interface Package {
   /**
    * The directory this package is located in. Meta data not found in the package.json
    */
@@ -57,7 +57,7 @@ export interface IPackage {
 /**
  * NPM package version spec
  */
-export interface IVersionSpec {
+export interface VersionSpec {
   /**
    * Version such as 1.0.0
    */
@@ -71,7 +71,7 @@ export interface IVersionSpec {
 /**
  * Run command options
  */
-export interface IRunCommandOptions {
+export interface RunCommandOptions {
   /**
    * Filter string for package names
    */
@@ -81,7 +81,7 @@ export interface IRunCommandOptions {
 /**
  * Add command options
  */
-export interface IAddCommandOptions {
+export interface AddCommandOptions {
   /**
    * Specify dependencies are dev dependencies
    */
@@ -95,7 +95,7 @@ export interface IAddCommandOptions {
 /**
  * Remove command options
  */
-export interface IRemoveCommandOptions {
+export interface RemoveCommandOptions {
   /**
    * Filter string for package names
    */
@@ -105,7 +105,7 @@ export interface IRemoveCommandOptions {
 /**
  * Simple logger
  */
-export interface ILogger {
+export interface Logger {
   /**
    * Log
    */
@@ -123,7 +123,7 @@ export interface ILogger {
 /**
  * Logger options
  */
-export interface ILoggerOptions {
+export interface LoggerOptions {
   /**
    * Prefix for every line of the log message
    */

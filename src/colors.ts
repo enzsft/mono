@@ -23,6 +23,9 @@ let currentColorIndex = 0;
 
 /**
  * Get a random chalk compatible color name
+ *
+ * @param {string} str A string to color
+ * @returns {string} String colored for console
  */
 export const applyRandomColor = (str: string): string => {
   const randomColor: string = chalkColors[currentColorIndex];

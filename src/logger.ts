@@ -1,7 +1,7 @@
 // tslint:disable no-console
 import chalk from "chalk";
 import { EOL } from "os";
-import { ILogger, ILoggerOptions } from "./types";
+import { Logger, LoggerOptions } from "./types";
 
 /**
  * Default prefix used when none is provided
@@ -11,8 +11,10 @@ export const defaultPrefix = chalk.magenta("mono: ");
 /**
  * Strip leading and trailing whitespace from each line of
  * the message and prefix each line
- * @param prefix
- * @param message
+ *
+ * @param {string} prefix Message prefix
+ * @param {string} message Message to format
+ * @returns {string} Formatted string
  */
 const format = (prefix: string, message: string): string =>
   message
@@ -27,10 +29,13 @@ const format = (prefix: string, message: string): string =>
 
 /**
  * Create a logger that logs to stdout/stderr
+ *
+ * @param {Object} options Logger options
+ * @returns {Object} A console logger
  */
 export const createConsoleLogger = (
-  options: ILoggerOptions = { prefix: defaultPrefix },
-): ILogger => ({
+  options: LoggerOptions = { prefix: defaultPrefix },
+): Logger => ({
   error: (message: string): void => {
     console.error(format(options.prefix, message));
   },

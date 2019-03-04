@@ -4,7 +4,7 @@ import { existsSync, readJson } from "fs-extra";
 import mockConsole, { RestoreConsole } from "jest-mock-console";
 import { resolve } from "path";
 import { createMonoRepo, deleteMonoRepo } from "../../mono-repo";
-import { IPackage } from "../../types";
+import { Package } from "../../types";
 import { wait } from "../../wait";
 import { createAddCommand } from "../add";
 
@@ -18,7 +18,7 @@ describe("add", () => {
     version: "1.0.0",
     workspaces: ["packages/*"],
   };
-  const packages: IPackage[] = [
+  const packages: Package[] = [
     {
       __dir: resolve(monoRepoDir, "packages/a-package"),
       license: "MIT",

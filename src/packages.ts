@@ -3,15 +3,17 @@ import { readJson } from "fs-extra";
 import glob from "glob-promise";
 import { resolve } from "path";
 import { getMonoRepo } from "./mono-repo";
-import { IMonoRepo, IPackage, IVersionSpec } from "./types";
+import { MonoRepo, Package, VersionSpec } from "./types";
 
 /**
  * Get all packages in a mono repo
- * @param currentDir
+ *
+ * @param {string} currentDir The directory to execute the search from
+ * @returns {Promise<Object[]>} A promise that resolves with all packages
  */
-export const getPackages = async (currentDir: string): Promise<IPackage[]> => {
+export const getPackages = async (currentDir: string): Promise<Package[]> => {
   // Load mono repo config
-  const monoRepo: IMonoRepo | null = await getMonoRepo(currentDir);
+  const monoRepo: MonoRepo | null = await getMonoRepo(currentDir);
 
   // If we can't find a mono repo then we can't find any packages
   if (!monoRepo) {
@@ -35,12 +37,12 @@ export const getPackages = async (currentDir: string): Promise<IPackage[]> => {
 
   // Load all file contents into a JS object, it's JSON so serializes properly
   const packages = await Promise.all(
-    workspaceFilePaths.map((x: string): Promise<IPackage> => readJson(x)),
+    workspaceFilePaths.map((x: string): Promise<Package> => readJson(x)),
   );
 
   // Apply package meta data on the way out
   return packages.map(
-    (x, i): IPackage => ({
+    (x, i): Package => ({
       ...x,
       __dir: workspaceFilePaths[i].replace("/package.json", ""),
     }),
@@ -49,13 +51,15 @@ export const getPackages = async (currentDir: string): Promise<IPackage[]> => {
 
 /**
  * Filter packages based on a filter string.
- * @param packages
- * @param filter Comma seperated package names
+ *
+ * @param {Objectp[]} packages Packages to filter
+ * @param {string} filter Comma seperated package names
+ * @returns {Object[]} Filtered packages
  */
 export const filterPackages = (
-  packages: IPackage[],
+  packages: Package[],
   filter: string,
-): IPackage[] => {
+): Package[] => {
   // Package names/wildcards can be comma seperated
   const filterParts = filter.split(",");
 
@@ -85,7 +89,9 @@ export const filterPackages = (
 /**
  * Extract the name from the install package string.
  * For example "react@16.8.0" will return "react"
- * @param nameWithMaybeVersion
+ *
+ * @param {string} nameWithMaybeVersion Package name with optional version
+ * @returns {string} The package name
  */
 export const getPackageName = (nameWithMaybeVersion: string): string => {
   const isScoped = nameWithMaybeVersion.startsWith("@");
@@ -103,12 +109,15 @@ export const getPackageName = (nameWithMaybeVersion: string): string => {
  * For example "react@16.8.0" will return "16.8.0".
  * If no version is present then the local packages and NPM
  * will be searched in that order.
- * @param nameWithMaybeVersion
+ *
+ * @param {string} nameWithMaybeVersion Package name with optional version
+ * @param {Object[]} localPackages All local packages
+ * @returns {Pbject} A package version spec
  */
 export const getPackageVersion = async (
   nameWithMaybeVersion: string,
-  localPackages: IPackage[],
-): Promise<IVersionSpec> => {
+  localPackages: Package[],
+): Promise<VersionSpec> => {
   const isScoped = nameWithMaybeVersion.startsWith("@");
   const strippedScopeNameWithMaybeVersion = isScoped
     ? nameWithMaybeVersion.substring(1)
@@ -133,7 +142,7 @@ export const getPackageVersion = async (
 
     return new Promise(
       (
-        res: (value?: IVersionSpec) => void,
+        res: (value?: VersionSpec) => void,
         rej: (error: Error) => void,
       ): void => {
         runner.stdout.on("data", (out: string) => {

@@ -6,22 +6,25 @@ import { applyRandomColor } from "../colors";
 import { createConsoleLogger } from "../logger";
 import { includeOption } from "../options/include";
 import { filterPackages } from "../packages";
-import { IMonoRepo, IPackage, IRunCommandOptions } from "../types";
+import { MonoRepo, Package, RunCommandOptions } from "../types";
 
 /**
  * Create the run command.
  * This command is used to run NPM scripts in packages in the mono repo.
- * @param packages
+ *
+ * @param {Object[]} packages All packages in the mono repo
+ * @param {Object} monoRepo The mono repo
+ * @returns {Object} The run command
  */
 export const createRunCommand = (
-  packages: IPackage[],
-  monoRepo: IMonoRepo | null,
-): Command<IRunCommandOptions> => {
+  packages: Package[],
+  monoRepo: MonoRepo | null,
+): Command<RunCommandOptions> => {
   return {
     description: "Run NPM scripts",
     handler: async (
       values: string[],
-      options: IRunCommandOptions,
+      options: RunCommandOptions,
     ): Promise<void> => {
       const logger = createConsoleLogger();
       // Can't continue if not in a mono repo
