@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.1/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [m.m.p] - yyyy-mm-dd
+
+### Added
+
+- Moved to babel compilation from TSC ([Issue #5](https://github.com/enzsft/mono/issues/10))
+- Renamed interfaces to not use the convention of starting with 'I'
+- Moved from TSLint to ESLint ([Issue #6](https://github.com/enzsft/mono/issues/11))
+
 ## [1.0.0] - 2019-02-25
 
 ### Added

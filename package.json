@@ -1,6 +1,6 @@
 {
   "name": "@enzsft/mono",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Manage JavaScript mono repos with ease. 😲",
   "keywords": [
     "mono",
@@ -26,14 +26,22 @@
     "test": "jest"
   },
   "dependencies": {
+    "@babel/runtime": "^7.3.4",
     "@enzsft/cli": "^2.0.4",
     "chalk": "^2.4.2",
     "fs-extra": "^7.0.1",
     "glob-promise": "^3.4.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.3.4",
+    "@babel/plugin-transform-runtime": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-typescript": "^7.3.3",
     "@types/fs-extra": "^5.0.4",
-    "@types/jest": "^23.3.12",
+    "@types/jest": "^24.0.10",
     "@types/node": "^10.12.18",
     "@typescript-eslint/eslint-plugin": "^1.4.2",
     "@typescript-eslint/parser": "^1.4.2",
@@ -43,15 +51,14 @@
     "eslint-plugin-prettier": "^3.0.1",
     "glob": "^7.1.3",
     "husky": "^1.3.1",
-    "jest": "^23.6.0",
+    "jest": "^24.3.1",
     "jest-mock-console": "^0.4.2",
     "prettier": "^1.16.4",
-    "ts-jest": "^23.10.5",
     "typescript": "^3.2.4"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "./scripts/quality-check.sh"
+      "pre-commit": "./scripts/precommit.sh"
     }
   }
 }

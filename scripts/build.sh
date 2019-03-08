@@ -6,7 +6,7 @@ set -e
 rm -rf .build
 
 # Build code
-tsc
+babel src --out-dir .build --extensions ".ts" --ignore "**/*.test.ts"
 
 # Copy files
 cp README.md .build/README.md
