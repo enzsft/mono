@@ -79,6 +79,14 @@ Use the Remove command to remove dependencies from packages in your mono repo.
 mono remove react react-dom
 ```
 
+### List
+
+List out all your packages in the format `name@version`.
+
+```bash
+mono list
+```
+
 ## Common options
 
 ### Include
