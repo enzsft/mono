@@ -21,17 +21,19 @@ export const createRunCommand = (
   monoRepo: MonoRepo | null,
 ): Command<RunCommandOptions> => {
   return {
-    description: "Run NPM scripts",
+    description: "Run NPM scripts.",
     handler: async (
       values: string[],
       options: RunCommandOptions,
     ): Promise<void> => {
       const logger = createConsoleLogger();
+
       // Can't continue if not in a mono repo
       if (!monoRepo) {
         logger.warn("Unable to locate your mono repo 😰");
         return;
       }
+
       // The script to execute will always be the first value
       // All values after the script are arguments to forward onto the executing script
       const [script, ...forwardedArgs] = values;

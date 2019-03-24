@@ -103,6 +103,16 @@ export interface RemoveCommandOptions {
 }
 
 /**
+ * List command options
+ */
+export interface ListCommandOptions {
+  /**
+   * Filter string for package names
+   */
+  include: string;
+}
+
+/**
  * Simple logger
  */
 export interface Logger {
