@@ -14,6 +14,7 @@ Before you start any work we recommend adding an issue so the changes can be dis
 | lint        | Lints all typescript                                 |
 | npm-publish | Publishes to NPM (you won't be able to publish this) |
 | test        | Run all tests                                        |
+| type        | Check TypeScript types                               |
 
 ## Tests 🧪
 
