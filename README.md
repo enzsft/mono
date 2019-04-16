@@ -87,6 +87,14 @@ List out all your packages in the format `name@version`.
 mono list
 ```
 
+### Find
+
+Find all of your package relative directory paths.
+
+```bash
+mono find
+```
+
 ## Common options
 
 ### Include

@@ -7,6 +7,7 @@ import { createRunCommand } from "./commands/run";
 import { getMonoRepo } from "./mono-repo";
 import { getPackages } from "./packages";
 import { createListCommand } from "./commands/list";
+import { createFindCommand } from "./commands/find";
 
 const run = async (): Promise<void> => {
   const cwd = process.cwd();
@@ -19,6 +20,7 @@ const run = async (): Promise<void> => {
       createRunCommand(packages, monoRepo),
       createRemoveCommand(packages, monoRepo),
       createListCommand(packages, monoRepo),
+      createFindCommand(packages, monoRepo, cwd),
     ],
     description: "Manage JavaScript mono repos with ease. 😲",
     name: "mono",

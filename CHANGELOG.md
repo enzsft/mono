@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.1/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.1 - 2019-04-16
+
+### Added
+
+- Added Find command ([Issue #14](https://github.com/enzsft/mono/issues/14))
+
 ## [1.1.1] - 2019-03-24
 
 ### Added
@@ -15,13 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added List command ([Issue #13])(https://github.com/enzsft/mono/issues/13)
+- Added List command ([Issue #13](https://github.com/enzsft/mono/issues/13))
 
 ## [1.0.2] - 2019-03-19
 
 ### Fixed
 
-- Added `glob` as dependency due to `glob-promise` having it as a peer dependency ([Issue #12])(https://github.com/enzsft/mono/issues/12)
+- Added `glob` as dependency due to `glob-promise` having it as a peer dependency ([Issue #12](https://github.com/enzsft/mono/issues/12))
 
 ## [1.0.1] - 2019-03-08
 

@@ -113,6 +113,16 @@ export interface ListCommandOptions {
 }
 
 /**
+ * Find command options
+ */
+export interface FindCommandOptions {
+  /**
+   * Filter string for package names
+   */
+  include: string;
+}
+
+/**
  * Simple logger
  */
 export interface Logger {
